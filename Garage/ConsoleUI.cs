@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Garage
 {
-    internal class ConsoleUI : IUI
+    public class ConsoleUI : IUI
     {   
         public string GarageTitle { get; private set; } = "No Title";
 
@@ -33,6 +33,12 @@ namespace Garage
 
             while(true)
             {
+                if (MainMenuActions.Count == 0 || MainMenuOptions.Count == 0 || MainMenuActions.Count != MainMenuOptions.Count)
+                {
+                    Console.WriteLine("Fel Meny");
+                    return;
+                }
+
                 foreach (var action in MainMenuActions)
                 { 
                     Console.WriteLine($"{action.Key}: {MainMenuOptions[action.Key]}");
@@ -48,6 +54,38 @@ namespace Garage
                 else
                 {
                     Console.WriteLine($"Invalid option. You must choose one of {MainMenuActions.Keys}");
+                }
+            }
+        }
+
+        public void ShowSubMenu(string subMenuTitle, Dictionary<int, Action> SubMenuActions, Dictionary<int, string> SubMenuOptions)
+        {
+            Console.Clear();
+            Console.WriteLine(subMenuTitle);
+
+            while (true)
+            {
+                if (SubMenuActions.Count == 0 || SubMenuOptions.Count == 0 || SubMenuActions.Count != SubMenuOptions.Count)
+                {
+                    Console.WriteLine("Fel Meny");
+                    return;
+                }
+
+                foreach (var action in SubMenuActions)
+                {
+                    Console.WriteLine($"{action.Key}: {SubMenuOptions[action.Key]}");
+                }
+
+                Console.Write("Navigera vid att välja en anledning: ");
+
+                var input = Console.ReadLine();
+                if (int.TryParse(input, out int choice) && SubMenuActions.ContainsKey(choice))
+                {
+                    SubMenuActions[choice].Invoke();
+                }
+                else
+                {
+                    Console.WriteLine($"Fel anledning. Du måste välja en av {SubMenuActions.Keys}");
                 }
             }
         }
