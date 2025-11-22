@@ -18,7 +18,6 @@ namespace Garage
         void AddVehicle(T vehicle);
         T RemoveVehicle(int index);
         T? FindByRegistraation(string registration);
-        //IEnumerable<T> Search(Func<T, bool> predicate);
         IEnumerable<T> Search(string searchTerm);
     }
 }

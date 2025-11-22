@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net.Quic;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Serialization;
 
 namespace Garage
 {
@@ -18,7 +19,6 @@ namespace Garage
         {
             if (_Handler.GarageNotInitialised)
             {
-                _UI.ShowMessage($"\nDu måste skappa ett nytt garage.");
                 int capacity = _UI.GetIntInput("Hur många fordon kan garaget ta samtidigt? ", "Kapacitet i garaget måste vara en nummer: ");
                 _Handler.CreateGarage(capacity);
             }
@@ -78,6 +78,7 @@ namespace Garage
             _UI.ShowSubMenu("Välj fordonstyp att lägga till:", addVehicleOptions, addVehicleMessages);
         }
 
+
         private void AddCar()
         {
             bool quit = false;
@@ -93,7 +94,7 @@ namespace Garage
                 var car = new Car(registrationNumber, make, model, color, trunkContent);
                 _Handler.AddVehicle(car);
 
-                string choice = _UI.GetStringInput("Lägga en till bil? Mata in q och sluta.", "<Enter> eller q");
+                string choice = _UI.GetStringInput("Lägga en till bil? Mata in q och sluta: ", "<Enter> eller q");
                 quit = choice.Equals("q");
             }
         }
@@ -120,7 +121,7 @@ namespace Garage
                 var bike = new Motorcycle(registrationNumber, make, model, color, isUtility);
                 _Handler.AddVehicle(bike);
 
-                string choice = _UI.GetStringInput("Lägga en till motorcykel? Mata in q och sluta.", "<Enter> eller q");
+                string choice = _UI.GetStringInput("Lägga en till motorcykel? Mata in q och sluta.: ", "<Enter> eller q");
                 quit = choice.Equals("q");
             }
         }
@@ -140,7 +141,7 @@ namespace Garage
                 var bus = new Bus(registrationNumber, make, model, color, linjeID);
                 _Handler.AddVehicle(bus);
 
-                string choice = _UI.GetStringInput("Lägga en till buss? Mata in q och sluta.", "<Enter> eller q");
+                string choice = _UI.GetStringInput("Lägga en till buss? Mata in q och sluta: ", "<Enter> eller q");
                 quit = choice.Equals("q");
             }
         }
@@ -164,8 +165,8 @@ namespace Garage
 
                 var boat = new Boat(registrationNumber, make, model, color, boatType);
                 _Handler.AddVehicle(boat);
-                
-                string choice = _UI.GetStringInput("Lägga en till båt? Mata in q och sluta.", "<Enter> eller q");
+
+                string choice = _UI.GetStringInput("Lägga en till båt? Mata in q och sluta: ", "<Enter> eller q");
                 quit = choice.Equals("q");
             }
         }
@@ -192,7 +193,7 @@ namespace Garage
                 var airplane = new Airplane(registrationNumber, make, model, color, wingSpan, engines);
                 _Handler.AddVehicle(airplane);
 
-                string choice = _UI.GetStringInput("Lägga en till flygplan? Mata in q och sluta.", "<Enter> eller q");
+                string choice = _UI.GetStringInput("Lägga en till flygplan? Mata in q och sluta: ", "<Enter> eller q");
                 quit = choice.Equals("q");
             }
         }
@@ -214,18 +215,21 @@ namespace Garage
             }
 
             _UI.ShowMessage($"\nFordon i garaget {_GarageTitle}:");
+            _UI.ShowMessage("-----------------------------------------------------------------");
             for (int index = 0; index < vehicleCount; index++)
             {
                 var vehicle = _Handler.GetVehicle(index);
-                _UI.ShowMessage($"{index}. {vehicle.Registration} {vehicle.Make} {vehicle.Model} {vehicle.Color}");
+                _UI.ShowMessage($"  {index}. {vehicle.Registration} {vehicle.Make} {vehicle.Model} {vehicle.Color}");
+                // TODO: jag kan lägga till formatering som i PluralSight videon :)
             }
+            _UI.ShowMessage("-----------------------------------------------------------------\n");
         }
 
         private void RemoveVehicle()
         {
             if (_Handler.GarageNotInitialised)
             {
-                _UI.ShowMessage("\nGaraget är inte skapat än. Du måste skappa ett garage först.");
+                _UI.ShowMessage("\nGaraget är inte skapat än. Du måste skappa ett garage först.\n");
                 return;
             }
 
@@ -233,7 +237,7 @@ namespace Garage
             int vehicleCount = vehicles.Count();
             if (vehicleCount == 0)
             {
-                _UI.ShowMessage("\nInga fordon i garaget att ta bort.");
+                _UI.ShowMessage("\nInga fordon i garaget att ta bort.\n");
                 return;
             }
 
@@ -245,22 +249,46 @@ namespace Garage
             }
 
             Vehicle removed = _Handler.RemoveVehicle(indexToRemove);
-            _UI.ShowMessage($"Fordonet {removed.Registration} har tagits bort från garaget.");
+            _UI.ShowMessage($"Fordonet {removed.Registration} har tagits bort från garaget.\n");
         }
 
         private void FindByRegistration()
         {
             _UI.ShowMessage("Hittar fordon via registreringsnummer: ");
             string registrationNumber = _UI.GetStringInput("Ange registreringsnummer att söka efter: ", "Registreringsnummer kan inte vara tomt!");
-            _Handler.FindByRegistraation(registrationNumber);
+            Vehicle? found = _Handler.FindByRegistraation(registrationNumber);
+            // TODO: behövs inte egen funktion i Handler, jag kan hitta med Search("registration=XYZ") ta bort?
+            if (found is not null)
+            {
+                _UI.ShowMessage($"Fordon hittat: {found.Registration} {found.Make} {found.Model} {found.Color}");
+            }
+            else
+            {
+                _UI.ShowMessage("Inget fordon hittades med det angivna registreringsnumret.\n");
+            }
         }
 
         private void Search()
         {
             _UI.ShowMessage("Söker fordon via egenskaper: ");
             string searchTerm = _UI.GetStringInput("Ange sökterm (ex: model=Tesla;color=red): ", "Sökterm kan inte vara tomt!");
-            
-            _Handler.Search(searchTerm);
+
+            IEnumerable<Vehicle>? found = _Handler.Search(searchTerm);
+            if (found is not null)
+            {
+                _UI.ShowMessage("Alla Fordon hittat: \n");
+                _UI.ShowMessage("-----------------------------------------------------------------");
+                foreach (var vehicle in found)
+                {
+                    _UI.ShowMessage($" {vehicle.Registration} {vehicle.Make} {vehicle.Model} {vehicle.Color}");
+                    // TODO: jag kan lägga till formatering som i PluralSight videon :)
+                }
+                _UI.ShowMessage("-----------------------------------------------------------------\n");
+            }
+            else
+            {
+                _UI.ShowMessage("Inget fordon hittades med detta sökning order.\n");
+            }
         }
 
         private void Init()
@@ -292,8 +320,9 @@ namespace Garage
 
             // TODO: flytta till config fil
             _UI.ShowMessage("------------------------------------------");
-            _GarageTitle = _UI.GetStringInput("Vad ska garaget heta?", "Namn kan inte vara tomt!");
-            
+            _GarageTitle = _UI.GetStringInput("Vad ska garaget heta? ", "Namn kan inte vara tomt!");
+            _UI.SetTitle(_GarageTitle);
+
             _Handler = new GarageHandler();
 
             CreateGarage();

@@ -209,7 +209,7 @@ namespace Garage.Tests
             handler.AddVehicle(vehicle2);
             handler.AddVehicle(vehicle3);
             IEnumerable<Vehicle> results = handler.Search(searchTerm);
-            
+
             Assert.AreEqual(2, results.Count());
             CollectionAssert.AreEquivalent(new List<Vehicle> { vehicle1, vehicle3 }, results.ToList());
         }
@@ -228,7 +228,7 @@ namespace Garage.Tests
             handler.AddVehicle(vehicle1);
             handler.AddVehicle(vehicle2);
             IEnumerable<Vehicle> results = handler.Search(searchTerm);
-            
+
             Assert.AreEqual(0, results.Count());
         }
 
@@ -265,7 +265,7 @@ namespace Garage.Tests
             handler.AddVehicle(vehicle2);
             handler.AddVehicle(vehicle3);
             IEnumerable<Vehicle> results = handler.Search("type=car;color=red");
-            
+
             Assert.AreEqual(1, results.Count());
             CollectionAssert.AreEquivalent(new List<Vehicle> { vehicle1 }, results.ToList());
         }
@@ -339,8 +339,10 @@ namespace Garage.Tests
         {
             GarageHandler handler = new GarageHandler();
             int targetCapacity = 1;
+            
             Vehicle vehicle1 = new Car("LMN456", "Chevrolet", "Camaro", "Yellow", "");
             Vehicle vehicle2 = new Motorcycle("OPQ789", "Ducati", "Monster", "Red", false);
+            
             handler.CreateGarage(targetCapacity);
             handler.AddVehicle(vehicle1);
             Assert.ThrowsException<InvalidOperationException>(() => handler.AddVehicle(vehicle2));
@@ -354,11 +356,11 @@ namespace Garage.Tests
         }                
 
         [TestMethod()]
-        public void RemoveVehicle_IndexOutOfRange_ThrowsArgumentOutOfRangeException()
+        public void RemoveVehicle_IndexOutOfRange_ThrowsIndexOutOfRange()
         {
             GarageHandler handler = new GarageHandler();
             handler.CreateGarage(2);
-            Assert.ThrowsException<ArgumentOutOfRangeException>(() => handler.RemoveVehicle(3));
+            Assert.ThrowsException<IndexOutOfRangeException>(() => handler.RemoveVehicle(3));
         }
     }
 }

@@ -12,6 +12,8 @@ namespace Garage
 
         Dictionary<int, Action> MainMenuActions { get; }
 
+        public void SetTitle(string title);
+
         void ShowMainMenu();
 
         void ShowSubMenu(string title, Dictionary<int, Action> actions, Dictionary<int, string> options);

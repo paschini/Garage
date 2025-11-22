@@ -9,52 +9,94 @@ namespace Garage
     public class Garage<T> : IGarage<T> where T : IVehicle
     {
         private readonly T[] _vehicles;
-        private int _count { get; set; }
+        public int Count { get; private set; }
         public int Capacity { get; }
-        public IEnumerable<T> AllVehicles => _vehicles.Take(_count);
+        public IEnumerable<T> AllVehicles => _vehicles.Take(Count);
 
         public Garage(int capacity)
         {
             _vehicles = new T[capacity];
-            _count = 0;
+            Count = 0;
             Capacity = capacity;
         }
 
         public void AddVehicle(T vehicle)
         {
-            if (_count >= Capacity) throw new InvalidOperationException("Garage is full!");
+            if (Count >= Capacity) throw new InvalidOperationException("Garage is full!");
 
             if (vehicle is null) throw new ArgumentNullException(nameof(vehicle), "Vehicle cannot be null!");
 
-            _vehicles[_count] = vehicle;
-            _count++;
+            _vehicles[Count] = vehicle;
+            Count++;
         }
 
         public T RemoveVehicle(int index)
         {
-            if (index > -1 && _count > 1)
+            if (index > -1 && Count > 1)
             {
                 T removedVehicle = _vehicles[index];
                 // Flytta alla andra 1 pos uppe
-                for (int i = index; i < _count - 1; i++)
+                for (int i = index; i < Count - 1; i++)
                 {
                     _vehicles[i] = _vehicles[i + 1];
                 }
-                _vehicles[_count - 1] = default!; // Rensa ut sistan
-                _count--;
+                _vehicles[Count - 1] = default!; // Rensa ut sistan
+                Count--;
                 return removedVehicle;
             }
             
-            if (index == 0 && _count == 1)
+            if (index == 0 && Count == 1)
             {
                 T removedVehicle = _vehicles[index];
                 // Första är endast ett fordon i garaget
                 _vehicles[0] = default!;
-                _count--;
+                Count--;
                 return removedVehicle;
             }
 
             throw new IndexOutOfRangeException("Index is out of range!");
+        }
+
+        public T GetVehicleAtIndex(int index)
+        {
+            if (index < 0 || index >= Count) throw new ArgumentOutOfRangeException(nameof(index), "Index is out of range!");
+            return _vehicles[index];
+        }
+
+        public T? FindVehicleByRegistration(string registration)
+        {
+            return _vehicles.Take(Count).FirstOrDefault(v => v.Registration.Equals(registration, StringComparison.OrdinalIgnoreCase));
+        }
+
+        public IEnumerable<T> SearchVehicles(string searchTerm)
+        {
+            if (string.IsNullOrWhiteSpace(searchTerm)) return _vehicles.Take(Count);
+
+            var filters = searchTerm.Split(';', StringSplitOptions.RemoveEmptyEntries)
+                               .Select(f => f.Split('='))
+                               .Where(parts => parts.Length == 2)
+                               .Select(parts => new { Property = parts[0].Trim(), Value = parts[1].Trim() })
+                               .ToList();
+
+            return _vehicles
+                .Where(v => v != null)
+                .Where(vehicle =>
+                {
+                    foreach (var filter in filters)
+                    {
+                        var prop = vehicle.GetType().GetProperty(filter.Property,
+                            System.Reflection.BindingFlags.IgnoreCase |
+                            System.Reflection.BindingFlags.Public |
+                            System.Reflection.BindingFlags.Instance);
+
+                        if (prop == null) return false;
+
+                        var propValue = prop.GetValue(vehicle)?.ToString() ?? "";
+
+                        if (!propValue.Equals(filter.Value, StringComparison.OrdinalIgnoreCase)) return false;
+                    }
+                    return true;
+                });
         }
     }
 }

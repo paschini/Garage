@@ -26,13 +26,16 @@ namespace Garage
             MainMenuOptions.Add(0, "Sluta Applikation");
         }
 
+        public void SetTitle(string title) { GarageTitle = title; }
+
         public void ShowMainMenu()
         {
             Console.Clear();
-            Console.WriteLine(GarageTitle);
 
             while(true)
             {
+                Console.WriteLine($"Välkommen till {GarageTitle}");
+
                 if (MainMenuActions.Count == 0 || MainMenuOptions.Count == 0 || MainMenuActions.Count != MainMenuOptions.Count)
                 {
                     Console.WriteLine("Fel Meny");
@@ -60,6 +63,10 @@ namespace Garage
 
         public void ShowSubMenu(string subMenuTitle, Dictionary<int, Action> SubMenuActions, Dictionary<int, string> SubMenuOptions)
         {
+
+            SubMenuActions.Add(0, ShowMainMenu);
+            SubMenuOptions.Add(0, "Tillback till Main Meny");
+
             Console.Clear();
             Console.WriteLine(subMenuTitle);
 
@@ -116,5 +123,3 @@ namespace Garage
         public string GetStringInput(string message, string errorMessage) => GetUserInput(message, errorMessage, input => (!string.IsNullOrWhiteSpace(input), input!));
     }
 }
-
-//static void Swap<T>(ref T lhs, ref T rhs)
