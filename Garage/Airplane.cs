@@ -8,16 +8,16 @@ namespace Garage
 {
     public class Airplane : Vehicle
     {
-        private double _WingSpan { get; }
-        private int _NumberOfEngines { get; } = 1;
+        public double WingSpan { get; }
+        public int NumberOfEngines { get; } = 1;
         public Airplane(string registration, string make, string model, string color, double wingspan, int numberOfEngines) : base(registration, make, model, color)
         {
             Registration = registration;
             Make = make;
             Model = model;
             Color = color;
-            _WingSpan = wingspan;
-            _NumberOfEngines = numberOfEngines;
+            WingSpan = wingspan;
+            NumberOfEngines = numberOfEngines;
         }
     }
 }

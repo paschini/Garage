@@ -8,14 +8,14 @@ namespace Garage
 {
     public class Boat : Vehicle
     {
-        private string _BoatType { get; }
+        public string BoatType { get; }
         public Boat(string registration, string make, string model, string color, string boatType) : base(registration, make, model, color)
         {
             Registration = registration;
             Make = make;
             Model = model;
             Color = color;
-            _BoatType = boatType;
+            BoatType = boatType;
         }
     }
 }

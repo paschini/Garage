@@ -8,7 +8,7 @@ namespace Garage
 {
     public class Car : Vehicle
     {
-        private string _TrunkContent { get; } = string.Empty;
+        public string TrunkContent { get; } = string.Empty;
 
         public Car(string registration, string make, string model, string color, string trunkContent) : base(registration, make, model, color)
         {
@@ -17,7 +17,7 @@ namespace Garage
             Model = model;
             Color = color;
 
-            _TrunkContent = trunkContent;
+            TrunkContent = trunkContent;
         }
     }
 }

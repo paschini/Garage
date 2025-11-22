@@ -273,6 +273,25 @@ namespace Garage.Tests
             CollectionAssert.AreEquivalent(new List<Vehicle> { vehicle4 }, results.ToList());
         }
 
+        [TestMethod()]
+        public void Search_MathcingExclusiveProps_ReturnsCarWithDogs()
+        {
+            int targetCapacity = 6;
+            Garage<Vehicle> garage = new Garage<Vehicle>(targetCapacity);
+
+            Vehicle vehicle1 = new Car("XYZ789", "Ford", "Mustang", "Red", "");
+            Vehicle vehicle2 = new Car("XYZ789", "Tesla", "X", "Red", "dogs");
+            Vehicle vehicle3 = new Motorcycle("GHI012", "Kawasaki", "Ninja", "Red", true);
+
+            garage.AddVehicle(vehicle1);
+            garage.AddVehicle(vehicle2);
+            garage.AddVehicle(vehicle3);
+            IEnumerable<Vehicle> results = garage.SearchVehicles("trunkcontent=dogs");
+
+            Assert.AreEqual(1, results.Count());
+            CollectionAssert.AreEquivalent(new List<Vehicle> { vehicle2 }, results.ToList());
+        }
+
         [TestCategory("Exception Tests")]
         [TestMethod()]
         public void GetVehicle_IndexOutOfRange_ThrowsArgumentOutOfRangeException()
