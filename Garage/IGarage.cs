@@ -17,5 +17,7 @@
         T? FindVehicleByRegistration(string registration);
 
         IEnumerable<T> SearchVehicles(string searchTerm);
+
+        void LoadVehicles(IEnumerable<T> vehicles);
     }
 }

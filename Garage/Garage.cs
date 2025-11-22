@@ -8,9 +8,9 @@ namespace Garage
 {
     public class Garage<T> : IGarage<T> where T : IVehicle
     {
-        private readonly T[] _vehicles;
+        private T[] _vehicles;
         public int Count { get; private set; }
-        public int Capacity { get; }
+        public int Capacity { get; private set; }
         public IEnumerable<T> AllVehicles => _vehicles.Take(Count);
 
         public Garage(int capacity)
@@ -97,6 +97,21 @@ namespace Garage
                     }
                     return true;
                 });
+        }
+
+        public void LoadVehicles(IEnumerable<T> vehicles)
+        {
+            var list = vehicles.ToList();
+
+            Capacity = list.Count + 3;
+            _vehicles = new T[Capacity];
+
+            for (int i = 0; i < list.Count; i++)
+            {
+                _vehicles[i] = list[i];
+            }
+
+            Count = list.Count;
         }
     }
 }

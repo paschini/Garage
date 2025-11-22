@@ -19,5 +19,9 @@ namespace Garage
         T RemoveVehicle(int index);
         T? FindByRegistraation(string registration);
         IEnumerable<T> Search(string searchTerm);
+
+        bool Populate(int total);
+        void SaveData(string fileName);
+        void LoadData(string fileName);
     }
 }

@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.Quic;
 using System.Text;
 using System.Threading.Tasks;
-using System.Xml.Serialization;
 
 namespace Garage
 {
@@ -92,7 +90,14 @@ namespace Garage
                 string trunkContent = _UI.GetStringInput("Ange innehåll i bagageutrymmet: ", "Innehåll i bagageutrymmet kan inte vara tomt!");
 
                 var car = new Car(registrationNumber, make, model, color, trunkContent);
-                _Handler.AddVehicle(car);
+                try
+                {
+                    _Handler.AddVehicle(car);
+                }
+                catch (Exception e)
+                {
+                    _UI.ShowMessage($"nååt gick fel: {e.Message}");
+                }
 
                 string choice = _UI.GetStringInput("Lägga en till bil? Mata in q och sluta: ", "<Enter> eller q");
                 quit = choice.Equals("q");
@@ -119,7 +124,14 @@ namespace Garage
                 bool isUtility = utility.Equals("ja");
 
                 var bike = new Motorcycle(registrationNumber, make, model, color, isUtility);
-                _Handler.AddVehicle(bike);
+                try
+                {
+                    _Handler.AddVehicle(bike);
+                }
+                catch (Exception e)
+                {
+                    _UI.ShowMessage($"nååt gick fel: {e.Message}");
+                }
 
                 string choice = _UI.GetStringInput("Lägga en till motorcykel? Mata in q och sluta.: ", "<Enter> eller q");
                 quit = choice.Equals("q");
@@ -139,7 +151,14 @@ namespace Garage
                 string linjeID = _UI.GetStringInput("Ange buss linje ID: ", "Linje ID kan inte vara tomt!");
 
                 var bus = new Bus(registrationNumber, make, model, color, linjeID);
-                _Handler.AddVehicle(bus);
+                try
+                {
+                    _Handler.AddVehicle(bus);
+                }
+                catch (Exception e)
+                {
+                    _UI.ShowMessage($"nååt gick fel: {e.Message}");
+                }
 
                 string choice = _UI.GetStringInput("Lägga en till buss? Mata in q och sluta: ", "<Enter> eller q");
                 quit = choice.Equals("q");
@@ -164,7 +183,14 @@ namespace Garage
                 }
 
                 var boat = new Boat(registrationNumber, make, model, color, boatType);
-                _Handler.AddVehicle(boat);
+                try
+                {
+                    _Handler.AddVehicle(boat);
+                }
+                catch (Exception e)
+                {
+                    _UI.ShowMessage($"nååt gick fel: {e.Message}");
+                }
 
                 string choice = _UI.GetStringInput("Lägga en till båt? Mata in q och sluta: ", "<Enter> eller q");
                 quit = choice.Equals("q");
@@ -191,7 +217,13 @@ namespace Garage
                 }
 
                 var airplane = new Airplane(registrationNumber, make, model, color, wingSpan, engines);
-                _Handler.AddVehicle(airplane);
+                try
+                {
+                    _Handler.AddVehicle(airplane);
+                } catch (Exception e)
+                {
+                    _UI.ShowMessage($"nååt gick fel: {e.Message}");
+                }
 
                 string choice = _UI.GetStringInput("Lägga en till flygplan? Mata in q och sluta: ", "<Enter> eller q");
                 quit = choice.Equals("q");
@@ -248,8 +280,15 @@ namespace Garage
                 indexToRemove = _UI.GetIntInput("Ange ett giltigt index för fordonet att ta bort: ", "Index måste vara ett giltigt nummer!");
             }
 
-            Vehicle removed = _Handler.RemoveVehicle(indexToRemove);
-            _UI.ShowMessage($"Fordonet {removed.Registration} har tagits bort från garaget.\n");
+            try
+            {
+                Vehicle removed = _Handler.RemoveVehicle(indexToRemove);
+                _UI.ShowMessage($"Fordonet {removed.Registration} har tagits bort från garaget.\n");
+            }
+            catch (Exception ex)
+            {
+                _UI.ShowMessage($"Nått gick fel: {ex.Message}");
+            }
         }
 
         private void FindByRegistration()
@@ -260,7 +299,9 @@ namespace Garage
             // TODO: behövs inte egen funktion i Handler, jag kan hitta med Search("registration=XYZ") ta bort?
             if (found is not null)
             {
+                _UI.ShowMessage("-----------------------------------------------------------------");
                 _UI.ShowMessage($"Fordon hittat: {found.Registration} {found.Make} {found.Model} {found.Color}");
+                _UI.ShowMessage("-----------------------------------------------------------------");
             }
             else
             {
@@ -291,6 +332,53 @@ namespace Garage
             }
         }
 
+        private void Populate()
+        {
+            _UI.ShowMessage($"Populära {_GarageTitle} med en antal slumpmässigt fordon...");
+            _UI.ShowMessage($"Vi garantera inte att det kommer inte uppreppa!");
+
+            int antalFordon = _UI.GetIntInput("\nHur många fordon vill du ha i garaget?  ", "Du måste mata en hel nummer!");
+            bool result = _Handler.Populate(antalFordon);
+            if (result) 
+            {
+                _UI.ShowMessage($"Garaget är populärade!");
+            }
+            else
+            {
+                _UI.ShowMessage($"Antalet kan inte vara mer än Garages kapacitet!");
+            }
+        }
+
+        private void SaveData()
+        {
+            _UI.ShowMessage($"Sparar {_GarageTitle} till JSON fil..");
+            try
+            {
+                _Handler.SaveData(_GarageTitle);
+                _UI.ShowMessage("Klart.\n");
+            }
+            catch (Exception ex) 
+            {
+                _UI.ShowMessage($"Nått gick fel:  {ex.Message}\n");
+            }
+
+        }
+
+        private void LoadData()
+        {
+            _UI.ShowMessage($"Laddar sparade JSON fil till {_GarageTitle}...");
+            try
+            {
+                _Handler.LoadData(_GarageTitle);
+                _UI.ShowMessage("Klart.\n");
+            }
+            catch (Exception ex)
+            {
+                _UI.ShowMessage($"Nått gick fel:  {ex.Message}\n");
+            }
+
+        }
+
         private void Init()
         {
             var mainMenuOptions = new Dictionary<int, Action>
@@ -300,6 +388,9 @@ namespace Garage
                 { 3, ListVehicles },
                 { 4, FindByRegistration },
                 { 5, Search },
+                { 6, Populate },
+                { 7, SaveData },
+                { 8, LoadData },
                 { 9, RemoveVehicle },
             };
 
@@ -310,6 +401,9 @@ namespace Garage
                 { 3, "Lista alla fordon" },
                 { 4, "Sök fordon via registreringsnummer" },
                 { 5, "Sök fordon via egenskaper" },
+                { 6, "Populära garaget med en antal fordon" },
+                { 7, "Skriv ut Garage fordoner till fil" },
+                { 8, "Laddar fordoner från fil" },
                 { 9, "Ta bort fordon" },
             };
 
