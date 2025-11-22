@@ -6,8 +6,6 @@
         {
             Manager manager = new Manager();
             manager.Run();
-
-            string[] names = new string[10];
         }
     }
 }

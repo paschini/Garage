@@ -6,16 +6,19 @@ using System.Threading.Tasks;
 
 namespace Garage
 {
-    internal interface IHandler
+    internal interface IHandler<T> where T : Vehicle
     {
-        protected Garage<Vehicle>? Garage { get; set;  }
+        IGarage<T>? Garage { get; set;  }
         bool GarageNotInitialised { get; }
         void CreateGarage(int capacity);
         int GetGarageCapacity();
         int GetCurrentVehicleCount();
-        IEnumerable<Vehicle> GetAllVehicles();
-        Vehicle GetVehicle(int index);
-        void AddVehicle(Vehicle vehicle);
-        Vehicle RemoveVehicle(int index);
+        IEnumerable<T> GetAllVehicles();
+        T GetVehicle(int index);
+        void AddVehicle(T vehicle);
+        T RemoveVehicle(int index);
+        T? FindByRegistraation(string registration);
+        //IEnumerable<T> Search(Func<T, bool> predicate);
+        IEnumerable<T> Search(string searchTerm);
     }
 }

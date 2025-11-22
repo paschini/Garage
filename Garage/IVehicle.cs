@@ -8,6 +8,7 @@ namespace Garage
 {
     public interface IVehicle
     {
+        string Type { get; }
         string Registration { get; set; }
         string Make { get; set; }
         string Model { get; set; }

@@ -6,10 +6,10 @@ using System.Threading.Tasks;
 
 namespace Garage
 {
-    public class Motorcykel : Vehicle
+    public class Motorcycle : Vehicle
     {
         private bool _IsUtility { get; } = false;
-        public Motorcykel(string registration, string make, string model, string color, bool isUtility) : base(registration, make, model, color)
+        public Motorcycle(string registration, string make, string model, string color, bool isUtility) : base(registration, make, model, color)
         {
             Registration = registration;
             Make = make;

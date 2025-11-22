@@ -8,6 +8,7 @@ namespace Garage
 {
     public abstract class Vehicle : IVehicle, IEquatable<Vehicle>
     {
+        public string Type => this.GetType().Name;
         public string Registration { get; set; }
         public string Make { get; set; }
         public string Model { get; set; } 

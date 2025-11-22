@@ -9,8 +9,8 @@ namespace Garage
 {
     internal class Manager
     {
-        private ConsoleUI _UI = null!; // vet bara om UI
-        private GarageHandler _Handler = null!; // vet inte om UI, vet om Garage
+        private IUI _UI = null!; // vet bara om UI
+        private IHandler<Vehicle> _Handler = null!; // vet inte om UI, vet om Garage
         private string _GarageTitle { get; set; } = string.Empty;
 
 
@@ -117,7 +117,7 @@ namespace Garage
 
                 bool isUtility = utility.Equals("ja");
 
-                var bike = new Motorcykel(registrationNumber, make, model, color, isUtility);
+                var bike = new Motorcycle(registrationNumber, make, model, color, isUtility);
                 _Handler.AddVehicle(bike);
 
                 string choice = _UI.GetStringInput("Lägga en till motorcykel? Mata in q och sluta.", "<Enter> eller q");
@@ -248,6 +248,21 @@ namespace Garage
             _UI.ShowMessage($"Fordonet {removed.Registration} har tagits bort från garaget.");
         }
 
+        private void FindByRegistration()
+        {
+            _UI.ShowMessage("Hittar fordon via registreringsnummer: ");
+            string registrationNumber = _UI.GetStringInput("Ange registreringsnummer att söka efter: ", "Registreringsnummer kan inte vara tomt!");
+            _Handler.FindByRegistraation(registrationNumber);
+        }
+
+        private void Search()
+        {
+            _UI.ShowMessage("Söker fordon via egenskaper: ");
+            string searchTerm = _UI.GetStringInput("Ange sökterm (ex: model=Tesla;color=red): ", "Sökterm kan inte vara tomt!");
+            
+            _Handler.Search(searchTerm);
+        }
+
         private void Init()
         {
             var mainMenuOptions = new Dictionary<int, Action>
@@ -255,6 +270,8 @@ namespace Garage
                 { 1, CreateGarage },
                 { 2, AddVehicle },
                 { 3, ListVehicles },
+                { 4, FindByRegistration },
+                { 5, Search },
                 { 9, RemoveVehicle },
             };
 
@@ -263,6 +280,8 @@ namespace Garage
                 { 1, "Create Garage" },
                 { 2, "Tilläg fordon" },
                 { 3, "Lista alla fordon" },
+                { 4, "Sök fordon via registreringsnummer" },
+                { 5, "Sök fordon via egenskaper" },
                 { 9, "Ta bort fordon" },
             };
 

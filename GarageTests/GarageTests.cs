@@ -125,11 +125,11 @@ namespace Garage.Tests
             garage.RemoveVehicle(0);
             var allVehicles = garage.AllVehicles.ToList();
 
-            Assert.Equals(allVehicles.Count, 0);
+            Assert.AreEqual(allVehicles.Count, 0);
         }
 
         [TestMethod()]
-        public void RemoveVehicle_InvalidIndex_ThrowsArgumentOutOfRangeException()
+        public void RemoveVehicle_InvalidIndex_ThrowsIndexOutOfRangeException()
         {
             int targetCapacity = 2;
             Garage<Vehicle> garage = new Garage<Vehicle>(targetCapacity);
@@ -139,8 +139,8 @@ namespace Garage.Tests
             garage.AddVehicle(vehicle1);
             garage.AddVehicle(vehicle2);
 
-            Assert.ThrowsException<ArgumentOutOfRangeException>(() => garage.RemoveVehicle(-1));
-            Assert.ThrowsException<ArgumentOutOfRangeException>(() => garage.RemoveVehicle(2));
+            Assert.ThrowsException<IndexOutOfRangeException>(() => garage.RemoveVehicle(-1));
+            Assert.ThrowsException<IndexOutOfRangeException>(() => garage.RemoveVehicle(2));
         }
     }
 }

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Garage
 {
-    public class Garage<T> where T : Vehicle
+    public class Garage<T> : IGarage<T> where T : IVehicle
     {
         private readonly T[] _vehicles;
         private int _count { get; set; }
@@ -30,18 +30,6 @@ namespace Garage
             _count++;
         }
 
-        //private int FindVehicleIndex(Vehicle vehicle)
-        //{
-        //    if (vehicle is null) throw new ArgumentNullException(nameof(vehicle), "Vehicle cannot be null!");
-
-        //    for (int i = 0; i < _count; i++)
-        //    {
-        //        if (_vehicles[i].Equals(vehicle)) return i;
-        //    }
-
-        //    return -1; // kan inte hittas
-        //}
-
         public T RemoveVehicle(int index)
         {
             if (index > -1 && _count > 1)
@@ -52,7 +40,7 @@ namespace Garage
                 {
                     _vehicles[i] = _vehicles[i + 1];
                 }
-                _vehicles[_count - 1] = null!; // Rensa ut sistan
+                _vehicles[_count - 1] = default!; // Rensa ut sistan
                 _count--;
                 return removedVehicle;
             }
@@ -60,13 +48,13 @@ namespace Garage
             if (index == 0 && _count == 1)
             {
                 T removedVehicle = _vehicles[index];
-                // Endast ett fordon i garaget
-                _vehicles[0] = null!;
+                // Första är endast ett fordon i garaget
+                _vehicles[0] = default!;
                 _count--;
                 return removedVehicle;
             }
 
-            throw new ArgumentOutOfRangeException(nameof(index), "Index is out of range!");
+            throw new IndexOutOfRangeException("Index is out of range!");
         }
     }
 }
