@@ -12,6 +12,7 @@ namespace Garage
         bool GarageNotInitialised { get; }
         void CreateGarage(int capacity);
         int GetGarageCapacity();
+        int GetGaragePlacesLeft();
         int GetCurrentVehicleCount();
         IEnumerable<T> GetAllVehicles();
         T GetVehicle(int index);

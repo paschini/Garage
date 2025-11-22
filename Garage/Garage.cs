@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Quic;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -11,6 +12,12 @@ namespace Garage
         private T[] _vehicles;
         public int Count { get; private set; }
         public int Capacity { get; private set; }
+        private int _availablePlaces;
+        public int AvailablePlaces
+        {
+            get => _availablePlaces / 3;
+            private set => _availablePlaces = value;
+        }
         public IEnumerable<T> AllVehicles => _vehicles.Take(Count);
 
         public Garage(int capacity)
@@ -18,16 +25,34 @@ namespace Garage
             _vehicles = new T[capacity];
             Count = 0;
             Capacity = capacity;
+            AvailablePlaces = capacity * 3;
+        }
+
+        private int CountPlaces(T vehicle)
+        {
+            switch (vehicle)
+            {
+                case Airplane:
+                    return 9; // 3 platser
+                case Motorcycle:
+                    return  1; // 1/3 plats
+                case Boat:
+                    return 6; // 2
+                default:
+                    return 3; // 1
+            }
         }
 
         public void AddVehicle(T vehicle)
         {
             if (Count >= Capacity) throw new InvalidOperationException("Garage is full!");
+            if (CountPlaces(vehicle) >= AvailablePlaces) throw new InvalidOperationException("Garage is full!");
 
             if (vehicle is null) throw new ArgumentNullException(nameof(vehicle), "Vehicle cannot be null!");
 
             _vehicles[Count] = vehicle;
             Count++;
+            AvailablePlaces -= CountPlaces(vehicle);
         }
 
         public T RemoveVehicle(int index)
@@ -42,6 +67,7 @@ namespace Garage
                 }
                 _vehicles[Count - 1] = default!; // Rensa ut sistan
                 Count--;
+                AvailablePlaces += CountPlaces(removedVehicle);
                 return removedVehicle;
             }
             
@@ -51,6 +77,7 @@ namespace Garage
                 // Första är endast ett fordon i garaget
                 _vehicles[0] = default!;
                 Count--;
+                AvailablePlaces += CountPlaces(removedVehicle);
                 return removedVehicle;
             }
 

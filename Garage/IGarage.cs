@@ -6,6 +6,8 @@
 
         int Count { get; }
 
+        int AvailablePlaces { get; }
+
         void AddVehicle(T vehicle);
 
         T RemoveVehicle(int index);

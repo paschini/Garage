@@ -22,6 +22,11 @@ namespace Garage
             return Garage != null ? Garage.Capacity : 0;
         }
 
+        public int GetGaragePlacesLeft()
+        {
+            return Garage != null ? Garage.AvailablePlaces : 0;
+        }
+
         public int GetCurrentVehicleCount()
         {
             if (Garage is null) throw new InvalidOperationException("Garage is not initialised!");

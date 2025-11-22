@@ -50,28 +50,45 @@ namespace Garage
                 return;
             }
 
-            var addVehicleOptions = new Dictionary<int, Action>
-            {
-                // Skappa factory?
-                //{ 1, () => _Handler.AddVehicle(VehicleFactory.CreateCar()) },
-                //{ 2, () => _Handler.AddVehicle(VehicleFactory.CreateMotorcycle()) },
-                //{ 3, () => _Handler.AddVehicle(VehicleFactory.CreateBus()) },
-                //{ 4, () => _Handler.AddVehicle(VehicleFactory.CreateTruck()) }
+            int placesLeft = _Handler.GetGaragePlacesLeft();
 
-                { 1, () => AddCar() },
-                { 2, () => AddMotorcyckel() },
-                { 3, () => AddBus() },
-                { 4, () => AddBoat() },
-                { 5, () => AddAirplane() },
-            };
-            var addVehicleMessages = new Dictionary<int, string>
+            var addVehicleOptions = new Dictionary<int, Action>();
+            var addVehicleMessages = new Dictionary<int, string>();
+
+            switch (placesLeft)
             {
-                { 1, "Lägg till bil" },
-                { 2, "Lägg till motorcykel" },
-                { 3, "Lägg till buss" },
-                { 4, "Lägg till båt" },
-                { 5, "Lägg till flyggplan" },
-            };
+                case 1:
+                    addVehicleOptions.Add(1, () => AddCar());
+                    addVehicleOptions.Add(2, () => AddMotorcyckel());
+
+                    addVehicleMessages.Add(1, "Lägg till bil");
+                    addVehicleMessages.Add(2, "Lägg till motorcykel");
+                    break;
+                case 2:
+                    addVehicleOptions.Add(1, () => AddCar());
+                    addVehicleOptions.Add(2, () => AddMotorcyckel());
+                    addVehicleOptions.Add(3, () => AddBus());
+                    addVehicleOptions.Add(4, () => AddBoat());
+
+                    addVehicleMessages.Add(1, "Lägg till bil");
+                    addVehicleMessages.Add(2, "Lägg till motorcykel");
+                    addVehicleMessages.Add(3, "Lägg till buss");
+                    addVehicleMessages.Add(4, "Lägg till båt");
+                    break;
+                case >= 3:
+                    addVehicleOptions.Add(1, () => AddCar());
+                    addVehicleOptions.Add(2, () => AddMotorcyckel());
+                    addVehicleOptions.Add(3, () => AddBus());
+                    addVehicleOptions.Add(4, () => AddBoat());
+                    addVehicleOptions.Add(5, () => AddAirplane());
+
+                    addVehicleMessages.Add(1, "Lägg till bil");
+                    addVehicleMessages.Add(2, "Lägg till motorcykel");
+                    addVehicleMessages.Add(3, "Lägg till buss");
+                    addVehicleMessages.Add(4, "Lägg till båt");
+                    addVehicleMessages.Add(5, "Lägg till flyggplan");
+                    break;
+            }
 
             _UI.ShowSubMenu("Välj fordonstyp att lägga till:", addVehicleOptions, addVehicleMessages);
         }
@@ -98,6 +115,9 @@ namespace Garage
                 {
                     _UI.ShowMessage($"nååt gick fel: {e.Message}");
                 }
+
+                _UI.ShowMessage($"Kapacitet nu: {_Handler.GetGarageCapacity()}");
+                _UI.ShowMessage($"Platser kvar nu: {_Handler.GetGaragePlacesLeft()}");
 
                 string choice = _UI.GetStringInput("Lägga en till bil? Mata in q och sluta: ", "<Enter> eller q");
                 quit = choice.Equals("q");
@@ -133,6 +153,9 @@ namespace Garage
                     _UI.ShowMessage($"nååt gick fel: {e.Message}");
                 }
 
+                _UI.ShowMessage($"Kapacitet nu: {_Handler.GetGarageCapacity()}");
+                _UI.ShowMessage($"Platser kvar nu: {_Handler.GetGaragePlacesLeft()}");
+
                 string choice = _UI.GetStringInput("Lägga en till motorcykel? Mata in q och sluta.: ", "<Enter> eller q");
                 quit = choice.Equals("q");
             }
@@ -159,6 +182,9 @@ namespace Garage
                 {
                     _UI.ShowMessage($"nååt gick fel: {e.Message}");
                 }
+
+                _UI.ShowMessage($"Kapacitet nu: {_Handler.GetGarageCapacity()}");
+                _UI.ShowMessage($"Platser kvar nu: {_Handler.GetGaragePlacesLeft()}");
 
                 string choice = _UI.GetStringInput("Lägga en till buss? Mata in q och sluta: ", "<Enter> eller q");
                 quit = choice.Equals("q");
@@ -192,6 +218,9 @@ namespace Garage
                     _UI.ShowMessage($"nååt gick fel: {e.Message}");
                 }
 
+                _UI.ShowMessage($"Kapacitet nu: {_Handler.GetGarageCapacity()}");
+                _UI.ShowMessage($"Platser kvar nu: {_Handler.GetGaragePlacesLeft()}");
+
                 string choice = _UI.GetStringInput("Lägga en till båt? Mata in q och sluta: ", "<Enter> eller q");
                 quit = choice.Equals("q");
             }
@@ -224,6 +253,9 @@ namespace Garage
                 {
                     _UI.ShowMessage($"nååt gick fel: {e.Message}");
                 }
+
+                _UI.ShowMessage($"Kapacitet nu: {_Handler.GetGarageCapacity()}");
+                _UI.ShowMessage($"Platser kvar nu: {_Handler.GetGaragePlacesLeft()}");
 
                 string choice = _UI.GetStringInput("Lägga en till flygplan? Mata in q och sluta: ", "<Enter> eller q");
                 quit = choice.Equals("q");
