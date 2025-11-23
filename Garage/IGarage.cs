@@ -2,6 +2,7 @@
 {
     public interface IGarage<T> where T : IVehicle
     {
+        string Name { get; }
         int Capacity { get; }
 
         int Count { get; }

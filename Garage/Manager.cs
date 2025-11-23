@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Text.Json;
@@ -20,26 +21,20 @@ namespace Garage
             {
                 if (_Config == null)
                 {
-                    int capacity = _UI.GetIntInput("Hur många fordon kan garaget ta samtidigt? ", "Kapacitet i garaget måste vara en nummer: ");
-                    _Handler.CreateGarage(capacity);
+                    int capacity = _UI.GetIntInput("Hur många fordon platser till fordon har garaget? ", "Kapacitet i garaget måste vara en hel nummer: ");
+                    _Handler.CreateGarage(capacity, _GarageTitle);
                 }
                 else
                 {
-                    _Handler.CreateGarage(_Config.GarageCapacity ?? 0);
+                    _Handler.CreateGarage(_Config.GarageCapacity ?? 0, _Config.GarageTitle ?? "");
                 }
-                
             }
             else
             {
-                _UI.ShowMessage($"\nGaraget är redan skapat. Är du säkert? {_GarageTitle} ska bortas");
-                string input = _UI.GetStringInput("Skriv 'JA' för att bekräfta: ", "Du måste skriva 'JA' för att bekräfta.");
-                if (input == "JA")
-                {
-                    // TODO: skappa RemoveGarage
-                    //_Handler.RemoveGarage();
-                    int capacity = _UI.GetIntInput("Hur många fordon kan garaget ta samtidigt? ", "Kapacitet i garaget måste vara en nummer: ");
-                    _Handler.CreateGarage(capacity);
-                }
+                string newGarageTitle = _UI.GetStringInput("Vad heter nytt garage? ", "Du måste mata en Garage Namn! ");
+                int newGarageCapacity = _UI.GetIntInput("Hur många fordon platser till fordon har garaget? ", "Kapacitet måste vara en hel nummer: ");
+
+                _Handler.CreateGarage(newGarageCapacity, newGarageTitle);
             }
         }
 

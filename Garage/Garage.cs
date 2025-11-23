@@ -10,6 +10,7 @@ namespace Garage
     public class Garage<T> : IGarage<T> where T : IVehicle
     {
         private T[] _vehicles;
+        public string Name { get; }
         public int Count { get; private set; }
         public int Capacity { get; private set; }
         private int _availablePlaces;
@@ -20,8 +21,9 @@ namespace Garage
         }
         public IEnumerable<T> AllVehicles => _vehicles.Take(Count);
 
-        public Garage(int capacity)
+        public Garage(int capacity, string name)
         {
+            Name = name;
             _vehicles = new T[capacity];
             Count = 0;
             Capacity = capacity;

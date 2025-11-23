@@ -8,9 +8,10 @@ namespace Garage
 {
     internal interface IHandler<T> where T : Vehicle
     {
-        IGarage<T>? Garage { get; set;  }
+        IGarage<T>? ActiveGarage { get; }
+        Dictionary<string, IGarage<T>> Garages { get; }        
         bool GarageNotInitialised { get; }
-        void CreateGarage(int capacity);
+        void CreateGarage(int capacity, string name);
         int GetGarageCapacity();
         int GetGaragePlacesLeft();
         int GetCurrentVehicleCount();

@@ -8,79 +8,82 @@ namespace Garage
 {
     public class GarageHandler : IHandler<Vehicle>
     {
-        public IGarage<Vehicle>? Garage { get; set; } = null;
+        public IGarage<Vehicle>? ActiveGarage { get; private set; } = null;
 
-        public bool GarageNotInitialised => Garage is null;
+        public Dictionary<string, IGarage<Vehicle>> Garages { get; private set; } = [];
 
-        public void CreateGarage(int capacity)
+        public bool GarageNotInitialised => ActiveGarage is null;
+
+        public void CreateGarage(int capacity, string name)
         {
-            Garage = new Garage<Vehicle>(capacity);
+            ActiveGarage = new Garage<Vehicle>(capacity, name);
+            Garages.Add(name, ActiveGarage);
         }
 
         public int GetGarageCapacity()
         {
-            return Garage != null ? Garage.Capacity : 0;
+            return ActiveGarage != null ? ActiveGarage.Capacity : 0;
         }
 
         public int GetGaragePlacesLeft()
         {
-            return Garage != null ? Garage.AvailablePlaces : 0;
+            return ActiveGarage != null ? ActiveGarage.AvailablePlaces : 0;
         }
 
         public int GetCurrentVehicleCount()
         {
-            if (Garage is null) throw new InvalidOperationException("Garage is not initialised!");
-            return Garage.Count;
+            if (ActiveGarage is null) throw new InvalidOperationException("Garage is not initialised!");
+            return ActiveGarage.Count;
         }
 
         public IEnumerable<Vehicle> GetAllVehicles()
         {
-            if (Garage is null) throw new InvalidOperationException("Garage is not initialised!");
-            return Garage.AllVehicles;
+            if (ActiveGarage is null) throw new InvalidOperationException("Garage is not initialised!");
+            return ActiveGarage.AllVehicles;
         }
 
         public Vehicle GetVehicle(int index)
         {
-            if (Garage is null) throw new InvalidOperationException("Garage is not initialised!");
+            if (ActiveGarage is null) throw new InvalidOperationException("Garage is not initialised!");
 
-            return  Garage.GetVehicleAtIndex(index);
+            return  ActiveGarage.GetVehicleAtIndex(index);
         }
 
 
         public void AddVehicle(Vehicle vehicle)
         {
-            if (Garage is null) throw new InvalidOperationException("Garage is not initialised!");
-            Garage.AddVehicle(vehicle);
+            if (ActiveGarage is null) throw new InvalidOperationException("Garage is not initialised!");
+            ActiveGarage.AddVehicle(vehicle);
         }
 
         public Vehicle RemoveVehicle(int index)
         {
-            if (Garage is null) throw new InvalidOperationException("Garage is not initialised!");
-            return Garage.RemoveVehicle(index);
+            if (ActiveGarage is null) throw new InvalidOperationException("Garage is not initialised!");
+            return ActiveGarage.RemoveVehicle(index);
         }
 
         public Vehicle? FindByRegistraation(string registration)
         {
-            if (Garage is null) throw new InvalidOperationException("Garage is not initialised!");
-            return Garage.FindVehicleByRegistration(registration);
+            if (ActiveGarage is null) throw new InvalidOperationException("Garage is not initialised!");
+            return ActiveGarage.FindVehicleByRegistration(registration);
         }
 
         public IEnumerable<Vehicle> Search(string searchTerm)
         {
-            if (Garage is null) throw new InvalidOperationException("Garage is not initialised!");
-            return Garage.SearchVehicles(searchTerm);
+            if (ActiveGarage is null) throw new InvalidOperationException("Garage is not initialised!");
+            return ActiveGarage.SearchVehicles(searchTerm);
         }
 
         public bool Populate(int total)
         {
-            if (Garage is null) throw new InvalidOperationException("Garage is not initialised!");
+            if (ActiveGarage is null) throw new InvalidOperationException("Garage is not initialised!");
 
-            if (Garage.Count + total <= Garage.Capacity)
+            if (ActiveGarage.Count + total <= ActiveGarage.Capacity)
             {
                 for (int i = 0; i < total; i++)
                 {
                     Vehicle generated = GenerateRandomVehicle();
-                    Garage.AddVehicle(generated);
+                    ActiveGarage.AddVehicle(generated);
                 }
 
                 return true;
@@ -140,19 +143,19 @@ namespace Garage
 
         public void SaveData(string fileName)
         {
-            if (Garage is null) throw new InvalidOperationException("Garage is not initialised!");
+            if (ActiveGarage is null) throw new InvalidOperationException("Garage is not initialised!");
 
             GarageRepository repo = new GarageRepository($"{fileName}.json");
-            repo.Save(Garage.AllVehicles);
+            repo.Save(ActiveGarage.AllVehicles);
         }
 
         public void LoadData(string fileName)
         {
-            if (Garage is null) throw new InvalidOperationException("Garage is not initialised!");
+            if (ActiveGarage is null) throw new InvalidOperationException("Garage is not initialised!");
 
             GarageRepository repo = new GarageRepository($"{fileName}.json");
             IEnumerable<Vehicle> savedVehicles = repo.Load(fileName);
-            if (savedVehicles.Count() > 0) Garage.LoadVehicles(savedVehicles);
+            if (savedVehicles.Count() > 0) ActiveGarage.LoadVehicles(savedVehicles);
         }
     }
 }
