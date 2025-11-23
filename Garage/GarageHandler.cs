@@ -97,7 +97,6 @@ namespace Garage
 
         private T GenerateRandomVehicle()
         {
-
             string[] Brands = { "Ford", "BMW", "Honda", "Tesla", "Volvo" };
             string[] Colors = { "Red", "Blue", "Black", "White", "Neon Green" };
             string[] CarModels = { "Focus", "Civic", "3-Series", "Model 3" };
@@ -106,31 +105,33 @@ namespace Garage
             string[] TrunkContents = { "hund", "katt", "hunder", "katter", "Påsar", "Grejer", "" };
 
             Random rand = new Random();
-            bool makeCar = rand.Next(2) == 0;
 
-
-
-            // TODO: fixme
-            if (makeCar)
+            if (typeof(T) == typeof(Vehicle) || typeof(T) == typeof(Car) || (typeof(T).IsSubclassOf(typeof(Car))))
             {
-                return new Vehicle(
+                // Safe cast to T after creating Car
+                object car = new Car(
                     registration: GeneratePlate(),
                     make: Brands[rand.Next(Brands.Length)],
                     model: CarModels[rand.Next(CarModels.Length)],
                     color: Colors[rand.Next(Colors.Length)],
                     trunkContent: TrunkContents[rand.Next(TrunkContents.Length)]
                 );
+                return (T)car;
             }
-            else
+            
+            if (typeof(T) == typeof(Motorcycle) || (typeof(T).IsSubclassOf(typeof(Motorcycle))))
             {
-                return new Motorcycle(
+                object moto = new Motorcycle(
                     registration: GeneratePlate(),
                     make: Brands[rand.Next(Brands.Length)],
                     model: MotoModels[rand.Next(MotoModels.Length)],
                     color: Colors[rand.Next(Colors.Length)],
                     isUtility: rand.Next(2) == 0
                 );
+                return (T)moto;
             }
+
+            throw new NotSupportedException($"Random generation for type {typeof(T).Name} is not supported.");
         }
 
         private string GeneratePlate()

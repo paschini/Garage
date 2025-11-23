@@ -34,7 +34,7 @@ namespace Garage
         T? FindByRegistraation(string registration);
         IEnumerable<T> Search(string searchTerm);
 
-        //bool Populate(int total);
+        bool Populate(int total);
         void SaveData(string fileName);
         void LoadData(string filename);
     }
