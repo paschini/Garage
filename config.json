@@ -1,4 +1,5 @@
 {
   "GarageTitle": "Parkerings Garage",
+  "GarageType": "Vehicle",
   "GarageCapacity":  10
 }

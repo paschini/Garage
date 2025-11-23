@@ -11,6 +11,7 @@ namespace Garage
     {
         private T[] _vehicles;
         public string Name { get; }
+        public Type VehicleType { get; } = typeof(T);
         public int Count { get; private set; }
         public int Capacity { get; private set; }
         private int _availablePlaces;

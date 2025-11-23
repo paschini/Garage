@@ -6,11 +6,23 @@ using System.Threading.Tasks;
 
 namespace Garage
 {
-    internal interface IHandler<T> where T : Vehicle
+    //public interface IHandler
+    //{
+    //    bool GarageNotInitialised { get; }
+    //    Type GarageType { get; }
+    //    void CreateGarage(int capacity, string name);
+    //    int GetGarageCapacity();
+    //    int GetGaragePlacesLeft();
+    //    int GetCurrentVehicleCount();
+    //    //bool Populate(int total);
+    //    void SaveData(string fileName);
+    //    void LoadData(string fileName);
+    //}
+
+    internal interface IHandler<T> where T : IVehicle
     {
-        IGarage<T>? ActiveGarage { get; }
-        Dictionary<string, IGarage<T>> Garages { get; }        
-        bool GarageNotInitialised { get; }
+        IGarage<T>? Garage { get; }
+        bool GarageInitialised { get; }
         void CreateGarage(int capacity, string name);
         int GetGarageCapacity();
         int GetGaragePlacesLeft();
@@ -22,8 +34,8 @@ namespace Garage
         T? FindByRegistraation(string registration);
         IEnumerable<T> Search(string searchTerm);
 
-        bool Populate(int total);
+        //bool Populate(int total);
         void SaveData(string fileName);
-        void LoadData(string fileName);
+        void LoadData(string filename);
     }
 }

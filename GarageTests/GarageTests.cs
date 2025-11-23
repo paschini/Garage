@@ -16,7 +16,7 @@ namespace Garage.Tests
         public void Garage_EmptyGarage_AllVehiclesIsEmpty()
         {
             int targetCapacity = 3;
-            Garage<Vehicle> garage = new Garage<Vehicle>(targetCapacity);
+            Garage<Vehicle> garage = new Garage<Vehicle>(targetCapacity, "");
 
             var allVehicles = garage.AllVehicles.ToList();
 
@@ -28,7 +28,7 @@ namespace Garage.Tests
         public void GarageCapacity_CorrectCapacity_ReturnsExpectedCapacity()
         {
             int targetCapacity = 5;
-            Garage<Vehicle> garage = new Garage<Vehicle>(targetCapacity);
+            Garage<Vehicle> garage = new Garage<Vehicle>(targetCapacity, "");
             Assert.AreEqual(targetCapacity, garage.Capacity);
         }
 
@@ -37,7 +37,7 @@ namespace Garage.Tests
         public void AddVehicle_UnderCapacity_VehicleIsAdded()
         {
             int targetCapacity = 2;
-            Garage<Vehicle> garage = new Garage<Vehicle>(targetCapacity);
+            Garage<Vehicle> garage = new Garage<Vehicle>(targetCapacity, "");
             Vehicle vehicle = new Car("ABC123", "Tesla", "Y", "White", "");
 
             garage.AddVehicle(vehicle);
@@ -51,7 +51,7 @@ namespace Garage.Tests
         public void AddVehicle_AtCapacity_ThrowsInvalidOperationException()
         {
             int targetCapacity = 1;
-            Garage<Vehicle> garage = new Garage<Vehicle>(targetCapacity);
+            Garage<Vehicle> garage = new Garage<Vehicle>(targetCapacity, "");
             Vehicle vehicle1 = new Car("ABC123", "Tesla", "Y", "White", "");
             Vehicle vehicle2 = new Car("DEF456", "BMW", "M3", "Black", "hund");
 
@@ -66,7 +66,7 @@ namespace Garage.Tests
         public void AddVehicle_NullVehicle_ThrowsArgumentNullException()
         {
             int targetCapacity = 2;
-            Garage<Vehicle> garage = new Garage<Vehicle>(targetCapacity);
+            Garage<Vehicle> garage = new Garage<Vehicle>(targetCapacity, "");
             Assert.ThrowsException<ArgumentNullException>(() => garage.AddVehicle(null!));
         }
 
@@ -75,7 +75,7 @@ namespace Garage.Tests
         public void AllVehicles_AfterAddingMultipleVehicles_ReturnsAllAddedVehicles()
         {
             int targetCapacity = 3;
-            Garage<Vehicle> garage = new Garage<Vehicle>(targetCapacity);
+            Garage<Vehicle> garage = new Garage<Vehicle>(targetCapacity, "");
             Vehicle vehicle1 = new Car("ABC123", "Tesla", "Y", "White", "");
             Vehicle vehicle2 = new Car("DEF456", "BMW", "M3", "Black", "");
 
@@ -94,7 +94,7 @@ namespace Garage.Tests
         public void RemoveVehicle_RemoveFirst_VehicleIsRemoved()
         {
             int targetCapacity = 2;
-            Garage<Vehicle> garage = new Garage<Vehicle>(targetCapacity);
+            Garage<Vehicle> garage = new Garage<Vehicle>(targetCapacity, "");
             Vehicle vehicleToRemove = new Car("DEF456", "BMW", "M3", "Black", "");
             Vehicle vehicle = new Car("ABC123", "Tesla", "Y", "White", "");
 
@@ -114,7 +114,7 @@ namespace Garage.Tests
         public void RemoveVehicle_RemoveLast_VehiclesIsEmpty()
         {
             int targetCapacity = 1;
-            Garage<Vehicle> garage = new Garage<Vehicle>(targetCapacity);
+            Garage<Vehicle> garage = new Garage<Vehicle>(targetCapacity, "");
             Vehicle vehicle1 = new Car("ABC123", "Tesla", "Y", "White", "");
 
             garage.AddVehicle(vehicle1);
@@ -129,7 +129,7 @@ namespace Garage.Tests
         public void RemoveVehicle_InvalidIndex_ThrowsIndexOutOfRangeException()
         {
             int targetCapacity = 2;
-            Garage<Vehicle> garage = new Garage<Vehicle>(targetCapacity);
+            Garage<Vehicle> garage = new Garage<Vehicle>(targetCapacity, "");
             Vehicle vehicle1 = new Car("ABC123", "Tesla", "Y", "White", "");
             Vehicle vehicle2 = new Car("DEF456", "BMW", "M3", "Black", "");
 
@@ -144,7 +144,7 @@ namespace Garage.Tests
         public void GarageCount_CorrectCount_ReturnsCorrectCount()
         {
             int targetCapacity = 2;
-            Garage<Vehicle> garage = new Garage<Vehicle>(targetCapacity);
+            Garage<Vehicle> garage = new Garage<Vehicle>(targetCapacity, "");
             Vehicle vehicle1 = new Car("ABC123", "Tesla", "Y", "White", "");
             Vehicle vehicle2 = new Motorcycle("XYZ123", "Kawasaki", "Ninja", "Neon Green", false);
 
@@ -163,7 +163,7 @@ namespace Garage.Tests
         public void FindByRegistration_VehicleExists_ReturnVehicle()
         {
             int targetCapacity = 2;
-            Garage<Vehicle> garage = new Garage<Vehicle>(targetCapacity);
+            Garage<Vehicle> garage = new Garage<Vehicle>(targetCapacity, "");
             Vehicle vehicle1 = new Car("ABC123", "Tesla", "Y", "White", "");
             Vehicle vehicle2 = new Motorcycle("XYZ123", "Kawasaki", "Ninja", "Neon Green", false);
             string registrationToFind = "xyz123";
@@ -181,7 +181,7 @@ namespace Garage.Tests
         public void FindByRegistration_VehicleDoesNotExist_ReturnNull()
         {
             int targetCapacity = 2;
-            Garage<Vehicle> garage = new Garage<Vehicle>(targetCapacity);
+            Garage<Vehicle> garage = new Garage<Vehicle>(targetCapacity, "");
             Vehicle vehicle1 = new Car("ABC123", "Tesla", "Y", "White", "");
             Vehicle vehicle2 = new Motorcycle("XYZ123", "Kawasaki", "Ninja", "Neon Green", false);
             string registrationToFind = "GXS456";
@@ -198,7 +198,7 @@ namespace Garage.Tests
         public void Search_VehiclesMatchSearchTerm_ReturnsMatchingVehicles()
         {
             int targetCapacity = 2;
-            Garage<Vehicle> garage = new Garage<Vehicle>(targetCapacity);
+            Garage<Vehicle> garage = new Garage<Vehicle>(targetCapacity, "");
 
             Vehicle vehicle1 = new Car("ABC123", "Tesla", "Y", "Neon Green", "");
             Vehicle vehicle2 = new Motorcycle("XYZ123", "Kawasaki", "Ninja", "Neon Green", false);
@@ -216,7 +216,7 @@ namespace Garage.Tests
         public void Search_EmptySearchTerm_ReturnsAllVehicles()
         {
             int targetCapacity = 2;
-            Garage<Vehicle> garage = new Garage<Vehicle>(targetCapacity);
+            Garage<Vehicle> garage = new Garage<Vehicle>(targetCapacity, "");
 
             Vehicle vehicle1 = new Car("ABC123", "Tesla", "Y", "Neon Green", "");
             Vehicle vehicle2 = new Motorcycle("XYZ123", "Kawasaki", "Ninja", "Neon Green", false);
@@ -233,7 +233,7 @@ namespace Garage.Tests
         public void Search_MatchingType_ReturnsRedCars()
         {
             int targetCapacity = 3;
-            Garage<Vehicle> garage = new Garage<Vehicle>(targetCapacity);
+            Garage<Vehicle> garage = new Garage<Vehicle>(targetCapacity, "");
 
             Vehicle vehicle1 = new Car("XYZ789", "Ford", "Mustang", "Red", "");
             Vehicle vehicle2 = new Motorcycle("GHI012", "Kawasaki", "Ninja", "Red", true);
@@ -252,7 +252,7 @@ namespace Garage.Tests
         public void Search_MathcingManyProps_ReturnsRedFerrariCarsWithRegistration()
         {
             int targetCapacity = 6;
-            Garage<Vehicle> garage = new Garage<Vehicle>(targetCapacity);
+            Garage<Vehicle> garage = new Garage<Vehicle>(targetCapacity, "");
 
             Vehicle vehicle1 = new Car("XYZ789", "Ford", "Mustang", "Red", "");
             Vehicle vehicle2 = new Car("XYZ789", "Tesla", "X", "Red", "");
@@ -277,7 +277,7 @@ namespace Garage.Tests
         public void Search_MathcingExclusiveProps_ReturnsCarWithDogs()
         {
             int targetCapacity = 6;
-            Garage<Vehicle> garage = new Garage<Vehicle>(targetCapacity);
+            Garage<Vehicle> garage = new Garage<Vehicle>(targetCapacity, "");
 
             Vehicle vehicle1 = new Car("XYZ789", "Ford", "Mustang", "Red", "");
             Vehicle vehicle2 = new Car("XYZ789", "Tesla", "X", "Red", "dogs");
@@ -297,7 +297,7 @@ namespace Garage.Tests
         public void GetVehicle_IndexOutOfRange_ThrowsArgumentOutOfRangeException()
         {
             int targetCapacity = 1;
-            Garage<Vehicle> garage = new Garage<Vehicle>(targetCapacity);
+            Garage<Vehicle> garage = new Garage<Vehicle>(targetCapacity, "");
 
             Assert.ThrowsException<ArgumentOutOfRangeException>(() => garage.GetVehicleAtIndex(5));
         }
@@ -306,7 +306,7 @@ namespace Garage.Tests
         public void AddVehicle_GarageFull_ThrowsInvalidOperationException()
         {
             int targetCapacity = 1;
-            Garage<Vehicle> garage = new Garage<Vehicle>(targetCapacity);
+            Garage<Vehicle> garage = new Garage<Vehicle>(targetCapacity, "");
 
             Vehicle vehicle1 = new Car("LMN456", "Chevrolet", "Camaro", "Yellow", "");
             Vehicle vehicle2 = new Motorcycle("OPQ789", "Ducati", "Monster", "Red", false);
@@ -320,7 +320,7 @@ namespace Garage.Tests
         public void RemoveVehicle_IndexOutOfRange_ThrowsIndexOutOfRangeException()
         {
             int targetCapacity = 1;
-            Garage<Vehicle> garage = new Garage<Vehicle>(targetCapacity);
+            Garage<Vehicle> garage = new Garage<Vehicle>(targetCapacity, "");
 
             Assert.ThrowsException<IndexOutOfRangeException>(() => garage.RemoveVehicle(3));
         }
@@ -329,7 +329,7 @@ namespace Garage.Tests
         public void RemoveVehicle_IndexOutOfRangeNegativeIndex_ThrowsIndexOutOfRangeException()
         {
             int targetCapacity = 1;
-            Garage<Vehicle> garage = new Garage<Vehicle>(targetCapacity);
+            Garage<Vehicle> garage = new Garage<Vehicle>(targetCapacity, "");
 
             Assert.ThrowsException<IndexOutOfRangeException>(() => garage.RemoveVehicle(-3));
         }

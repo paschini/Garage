@@ -1,14 +1,19 @@
 ﻿namespace Garage
 {
-    public interface IGarage<T> where T : IVehicle
+    public interface IGarage
     {
         string Name { get; }
+
+        Type VehicleType { get; }
+
         int Capacity { get; }
 
         int Count { get; }
 
         int AvailablePlaces { get; }
-
+    }
+    public interface IGarage<T> : IGarage where T : IVehicle
+    {
         void AddVehicle(T vehicle);
 
         T RemoveVehicle(int index);

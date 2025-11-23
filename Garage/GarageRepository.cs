@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Garage
 {
-    public class GarageRepository
+    public class GarageRepository<T> where T : IVehicle
     {
         private readonly string _filePath;
 
@@ -16,7 +16,7 @@ namespace Garage
             _filePath = filePath;
         }
 
-        public void Save(IEnumerable<Vehicle> vehicles)
+        public void Save(IEnumerable<T> vehicles)
         {
             var json = JsonSerializer.Serialize(vehicles, new JsonSerializerOptions
             {
@@ -27,12 +27,12 @@ namespace Garage
             File.WriteAllText(_filePath, json);
         }
 
-        public IEnumerable<Vehicle> Load(string fileName)
+        public IEnumerable<T> Load(string fileName)
         {
-            if (!File.Exists(_filePath ?? fileName)) return new List<Vehicle>();
+            if (!File.Exists(_filePath ?? fileName)) return new List<T>();
 
             var json = File.ReadAllText(_filePath ?? fileName);
-            return JsonSerializer.Deserialize<List<Vehicle>>(json) ?? new List<Vehicle>();
+            return JsonSerializer.Deserialize<List<T>>(json) ?? new List<T>();
         }
     }
 }
