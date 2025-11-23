@@ -34,7 +34,14 @@ namespace Garage
                 string newGarageTitle = _UI.GetStringInput("Vad heter nytt garage? ", "Du måste mata en Garage Namn! ");
                 int newGarageCapacity = _UI.GetIntInput("Hur många fordon platser till fordon har garaget? ", "Kapacitet måste vara en hel nummer: ");
 
-                _Handler.CreateGarage(newGarageCapacity, newGarageTitle);
+                try
+                {
+                    _Handler.CreateGarage(newGarageCapacity, newGarageTitle);
+                }
+                catch (Exception ex) 
+                {
+                    _UI.ShowMessage($"Nått gick fel: {ex.Message}");
+                }
             }
         }
 
@@ -59,61 +66,38 @@ namespace Garage
             var addVehicleOptions = new Dictionary<int, Action>();
             var addVehicleMessages = new Dictionary<int, string>();
 
-            switch (placesLeft)
+            addVehicleOptions.Add(1, () => AddVehicleOfType<Car>(FactoryCar));
+            addVehicleOptions.Add(2, () => AddVehicleOfType<Motorcycle>(FactoryMotorcycle));
+            addVehicleMessages.Add(1, "Lägg till bil");
+            addVehicleMessages.Add(2, "Lägg till motorcykel");
+
+            if (placesLeft >= 2)
             {
-                case 1:
-                    addVehicleOptions.Add(1, () => AddCar());
-                    addVehicleOptions.Add(2, () => AddMotorcyckel());
+                addVehicleOptions.Add(3, () => AddVehicleOfType<Bus>(FactoryBus));
+                addVehicleOptions.Add(4, () => AddVehicleOfType<Boat>(FactoryBoat));
+                addVehicleMessages.Add(3, "Lägg till buss");
+                addVehicleMessages.Add(4, "Lägg till båt");
+            }
 
-                    addVehicleMessages.Add(1, "Lägg till bil");
-                    addVehicleMessages.Add(2, "Lägg till motorcykel");
-                    break;
-                case 2:
-                    addVehicleOptions.Add(1, () => AddCar());
-                    addVehicleOptions.Add(2, () => AddMotorcyckel());
-                    addVehicleOptions.Add(3, () => AddBus());
-                    addVehicleOptions.Add(4, () => AddBoat());
-
-                    addVehicleMessages.Add(1, "Lägg till bil");
-                    addVehicleMessages.Add(2, "Lägg till motorcykel");
-                    addVehicleMessages.Add(3, "Lägg till buss");
-                    addVehicleMessages.Add(4, "Lägg till båt");
-                    break;
-                case >= 3:
-                    addVehicleOptions.Add(1, () => AddCar());
-                    addVehicleOptions.Add(2, () => AddMotorcyckel());
-                    addVehicleOptions.Add(3, () => AddBus());
-                    addVehicleOptions.Add(4, () => AddBoat());
-                    addVehicleOptions.Add(5, () => AddAirplane());
-
-                    addVehicleMessages.Add(1, "Lägg till bil");
-                    addVehicleMessages.Add(2, "Lägg till motorcykel");
-                    addVehicleMessages.Add(3, "Lägg till buss");
-                    addVehicleMessages.Add(4, "Lägg till båt");
-                    addVehicleMessages.Add(5, "Lägg till flyggplan");
-                    break;
+            if (placesLeft >= 3)
+            {
+                addVehicleOptions.Add(5, () => AddVehicleOfType<Airplane>(FactoryAirplane));
+                addVehicleMessages.Add(5, "Lägg till flygplan");
             }
 
             _UI.ShowSubMenu("Välj fordonstyp att lägga till:", addVehicleOptions, addVehicleMessages);
         }
 
-
-        private void AddCar()
+        private void AddVehicleOfType<T>(Func<T> factory) where T : Vehicle
         {
+            // mindre upprepning med en lite Factory xD
             bool quit = false;
             while (!quit)
             {
-                _UI.ShowMessage("\nLägger till en bil: ");
-                string registrationNumber = _UI.GetStringInput("Ange registreringsnummer: ", "Registreringsnummer kan inte vara tomt!");
-                string make = _UI.GetStringInput("Ange bilmärke: ", "Bilmärke kan inte vara tomt!");
-                string model = _UI.GetStringInput("Ange bilmodell: ", "Bilmodell kan inte vara tomt!");
-                string color = _UI.GetStringInput("Ange bilfärg: ", "Bilfärg kan inte vara tomt!");
-                string trunkContent = _UI.GetStringInput("Ange innehåll i bagageutrymmet: ", "Innehåll i bagageutrymmet kan inte vara tomt!");
-
-                var car = new Car(registrationNumber, make, model, color, trunkContent);
+                var vehicle = factory(); // constructor delegat
                 try
                 {
-                    _Handler.AddVehicle(car);
+                    _Handler.AddVehicle(vehicle);
                 }
                 catch (Exception e)
                 {
@@ -123,147 +107,88 @@ namespace Garage
                 _UI.ShowMessage($"Kapacitet nu: {_Handler.GetGarageCapacity()}");
                 _UI.ShowMessage($"Platser kvar nu: {_Handler.GetGaragePlacesLeft()}");
 
-                string choice = _UI.GetStringInput("Lägga en till bil? Mata in q och sluta: ", "<Enter> eller q");
+                string choice = _UI.GetStringInput("\nLägga en till bil? Mata in q och sluta: ", "<Enter> eller q ");
                 quit = choice.Equals("q");
             }
         }
 
-        private void AddMotorcyckel()
+        private Car FactoryCar()
         {
-            bool quit = false;
-            while (!quit)
-            {
-                _UI.ShowMessage("\nLägger till en motorcykel: ");
-                string registrationNumber = _UI.GetStringInput("Ange registreringsnummer: ", "Registreringsnummer kan inte vara tomt!");
-                string make = _UI.GetStringInput("Ange motorcykelmärke: ", "Bilmärke kan inte vara tomt!");
-                string model = _UI.GetStringInput("Ange motorcykelmodell: ", "Bilmodell kan inte vara tomt!");
-                string color = _UI.GetStringInput("Ange motorcykellfärg: ", "Bilfärg kan inte vara tomt!");
-                string utility = _UI.GetStringInput("Är det en utility motorcykel? (ja/nej): ", "Du måste ange 'ja' eller 'nej'!");
+            _UI.ShowMessage("\nLägger till en bil: ");
+            string registrationNumber = _UI.GetStringInput("Ange registreringsnummer: ", "Registreringsnummer kan inte vara tomt!");
+            string make = _UI.GetStringInput("Ange bilmärke: ", "Bilmärke kan inte vara tomt!");
+            string model = _UI.GetStringInput("Ange bilmodell: ", "Bilmodell kan inte vara tomt!");
+            string color = _UI.GetStringInput("Ange bilfärg: ", "Bilfärg kan inte vara tomt!");
+            string trunkContent = _UI.GetStringInput("Ange innehåll i bagageutrymmet: ", "Innehåll i bagageutrymmet kan inte vara tomt!");
 
-                while (utility != "ja" && utility != "nej")
-                {
-                    _UI.GetStringInput("Är det en utility motorcykel? (ja/nej): ", "Du måste ange 'ja' eller 'nej'!");
-                }
-
-                bool isUtility = utility.Equals("ja");
-
-                var bike = new Motorcycle(registrationNumber, make, model, color, isUtility);
-                try
-                {
-                    _Handler.AddVehicle(bike);
-                }
-                catch (Exception e)
-                {
-                    _UI.ShowMessage($"nååt gick fel: {e.Message}");
-                }
-
-                _UI.ShowMessage($"Kapacitet nu: {_Handler.GetGarageCapacity()}");
-                _UI.ShowMessage($"Platser kvar nu: {_Handler.GetGaragePlacesLeft()}");
-
-                string choice = _UI.GetStringInput("Lägga en till motorcykel? Mata in q och sluta.: ", "<Enter> eller q");
-                quit = choice.Equals("q");
-            }
+            return new Car(registrationNumber, make, model, color, trunkContent);
         }
 
-        private void AddBus()
+        private Motorcycle FactoryMotorcycle()
         {
-            bool quit = false;
-            while (!quit)
+            _UI.ShowMessage("\nLägger till en motorcykel: ");
+            string registrationNumber = _UI.GetStringInput("Ange registreringsnummer: ", "Registreringsnummer kan inte vara tomt!");
+            string make = _UI.GetStringInput("Ange motorcykelmärke: ", "Bilmärke kan inte vara tomt!");
+            string model = _UI.GetStringInput("Ange motorcykelmodell: ", "Bilmodell kan inte vara tomt!");
+            string color = _UI.GetStringInput("Ange motorcykellfärg: ", "Bilfärg kan inte vara tomt!");
+            string utility = _UI.GetStringInput("Är det en utility motorcykel? (ja/nej): ", "Du måste ange 'ja' eller 'nej'!");
+
+            while (utility != "ja" && utility != "nej")
             {
-                _UI.ShowMessage("\nLägger till en buss: ");
-                string registrationNumber = _UI.GetStringInput("Ange registreringsnummer: ", "Registreringsnummer kan inte vara tomt!");
-                string make = _UI.GetStringInput("Ange busmärke: ", "Bilmärke kan inte vara tomt!");
-                string model = _UI.GetStringInput("Ange bussmodell: ", "Bilmodell kan inte vara tomt!");
-                string color = _UI.GetStringInput("Ange bussfärg: ", "Bilfärg kan inte vara tomt!");
-                string linjeID = _UI.GetStringInput("Ange buss linje ID: ", "Linje ID kan inte vara tomt!");
-
-                var bus = new Bus(registrationNumber, make, model, color, linjeID);
-                try
-                {
-                    _Handler.AddVehicle(bus);
-                }
-                catch (Exception e)
-                {
-                    _UI.ShowMessage($"nååt gick fel: {e.Message}");
-                }
-
-                _UI.ShowMessage($"Kapacitet nu: {_Handler.GetGarageCapacity()}");
-                _UI.ShowMessage($"Platser kvar nu: {_Handler.GetGaragePlacesLeft()}");
-
-                string choice = _UI.GetStringInput("Lägga en till buss? Mata in q och sluta: ", "<Enter> eller q");
-                quit = choice.Equals("q");
+                _UI.GetStringInput("Är det en utility motorcykel? (ja/nej): ", "Du måste ange 'ja' eller 'nej'!");
             }
+
+            bool isUtility = utility.Equals("ja");
+
+            return new Motorcycle(registrationNumber, make, model, color, isUtility);
         }
 
-        private void AddBoat()
+        private Bus FactoryBus()
         {
-            bool quit = false;
-            while (!quit)
-            {
-                _UI.ShowMessage("\nLägger till en båt: ");
-                string registrationNumber = _UI.GetStringInput("Ange registreringsnummer: ", "Registreringsnummer kan inte vara tomt!");
-                string make = _UI.GetStringInput("Ange båtmärke: ", "Bilmärke kan inte vara tomt!");
-                string model = _UI.GetStringInput("Ange båtmodell: ", "Bilmodell kan inte vara tomt!");
-                string color = _UI.GetStringInput("Ange båtfärg: ", "Bilfärg kan inte vara tomt!");
-                string boatType = _UI.GetStringInput("Ange båttyp (segelbåt, motorbåt, katamaran): ", "Båttyp kan inte vara tomt!");
+            _UI.ShowMessage("\nLägger till en buss: ");
+            string registrationNumber = _UI.GetStringInput("Ange registreringsnummer: ", "Registreringsnummer kan inte vara tomt!");
+            string make = _UI.GetStringInput("Ange busmärke: ", "Bilmärke kan inte vara tomt!");
+            string model = _UI.GetStringInput("Ange bussmodell: ", "Bilmodell kan inte vara tomt!");
+            string color = _UI.GetStringInput("Ange bussfärg: ", "Bilfärg kan inte vara tomt!");
+            string linjeID = _UI.GetStringInput("Ange buss linje ID: ", "Linje ID kan inte vara tomt!");
 
-                while (boatType != "segelbåt" && boatType != "motorbåt" && boatType != "katamaran")
-                {
-                    _UI.GetStringInput("Är det en utility motorcykel? (ja/nej): ", "Du måste ange 'segelbåt', 'motorbåt' eller 'katamaran'!");
-                }
-
-                var boat = new Boat(registrationNumber, make, model, color, boatType);
-                try
-                {
-                    _Handler.AddVehicle(boat);
-                }
-                catch (Exception e)
-                {
-                    _UI.ShowMessage($"nååt gick fel: {e.Message}");
-                }
-
-                _UI.ShowMessage($"Kapacitet nu: {_Handler.GetGarageCapacity()}");
-                _UI.ShowMessage($"Platser kvar nu: {_Handler.GetGaragePlacesLeft()}");
-
-                string choice = _UI.GetStringInput("Lägga en till båt? Mata in q och sluta: ", "<Enter> eller q");
-                quit = choice.Equals("q");
-            }
+            return new Bus(registrationNumber, make, model, color, linjeID);
         }
 
-        private void AddAirplane()
+        private Boat FactoryBoat()
         {
-            bool quit = false;
-            while (!quit)
+            _UI.ShowMessage("\nLägger till en båt: ");
+            string registrationNumber = _UI.GetStringInput("Ange registreringsnummer: ", "Registreringsnummer kan inte vara tomt!");
+            string make = _UI.GetStringInput("Ange båtmärke: ", "Bilmärke kan inte vara tomt!");
+            string model = _UI.GetStringInput("Ange båtmodell: ", "Bilmodell kan inte vara tomt!");
+            string color = _UI.GetStringInput("Ange båtfärg: ", "Bilfärg kan inte vara tomt!");
+            string boatType = _UI.GetStringInput("Ange båttyp (segelbåt, motorbåt, katamaran): ", "Båttyp kan inte vara tomt!");
+
+            while (boatType != "segelbåt" && boatType != "motorbåt" && boatType != "katamaran")
             {
-                _UI.ShowMessage("\nLägger till ett flygplan: ");
-                string registrationNumber = _UI.GetStringInput("Ange registreringsnummer: ", "Registreringsnummer kan inte vara tomt!");
-                string make = _UI.GetStringInput("Ange flygplanmärke: ", "Bilmärke kan inte vara tomt!");
-                string model = _UI.GetStringInput("Ange flygplanmodell: ", "Bilmodell kan inte vara tomt!");
-                string color = _UI.GetStringInput("Ange flygplanfärg: ", "Bilfärg kan inte vara tomt!");
-                string wingSpanInput = _UI.GetStringInput("Ange vingbredd i meter: ", "Vingbredd kan inte vara tomt!");
-                int engines = _UI.GetIntInput("Ange antal motorer: ", "Antal motorer måste vara ett positivt nummer!");
-
-                double wingSpan;
-                while (!double.TryParse(wingSpanInput, out wingSpan) || wingSpan <= 0)
-                {
-                    wingSpanInput = _UI.GetStringInput("Ange vingbredd i meter (positivt nummer): ", "Vingbredd måste vara ett positivt nummer!");
-                }
-
-                var airplane = new Airplane(registrationNumber, make, model, color, wingSpan, engines);
-                try
-                {
-                    _Handler.AddVehicle(airplane);
-                } catch (Exception e)
-                {
-                    _UI.ShowMessage($"nååt gick fel: {e.Message}");
-                }
-
-                _UI.ShowMessage($"Kapacitet nu: {_Handler.GetGarageCapacity()}");
-                _UI.ShowMessage($"Platser kvar nu: {_Handler.GetGaragePlacesLeft()}");
-
-                string choice = _UI.GetStringInput("Lägga en till flygplan? Mata in q och sluta: ", "<Enter> eller q");
-                quit = choice.Equals("q");
+                _UI.GetStringInput("Är det en utility motorcykel? (ja/nej): ", "Du måste ange 'segelbåt', 'motorbåt' eller 'katamaran'!");
             }
+
+            return new Boat(registrationNumber, make, model, color, boatType);
+        }
+
+        private Airplane FactoryAirplane()
+        {
+            _UI.ShowMessage("\nLägger till ett flygplan: ");
+            string registrationNumber = _UI.GetStringInput("Ange registreringsnummer: ", "Registreringsnummer kan inte vara tomt!");
+            string make = _UI.GetStringInput("Ange flygplanmärke: ", "Bilmärke kan inte vara tomt!");
+            string model = _UI.GetStringInput("Ange flygplanmodell: ", "Bilmodell kan inte vara tomt!");
+            string color = _UI.GetStringInput("Ange flygplanfärg: ", "Bilfärg kan inte vara tomt!");
+            string wingSpanInput = _UI.GetStringInput("Ange vingbredd i meter: ", "Vingbredd kan inte vara tomt!");
+            int engines = _UI.GetIntInput("Ange antal motorer: ", "Antal motorer måste vara ett positivt nummer!");
+
+            double wingSpan;
+            while (!double.TryParse(wingSpanInput, out wingSpan) || wingSpan <= 0)
+            {
+                wingSpanInput = _UI.GetStringInput("Ange vingbredd i meter (positivt nummer): ", "Vingbredd måste vara ett positivt nummer!");
+            }
+
+            return new Airplane(registrationNumber, make, model, color, wingSpan, engines);
         }
 
         private void ListVehicles()

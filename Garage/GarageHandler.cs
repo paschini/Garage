@@ -17,7 +17,9 @@ namespace Garage
         public void CreateGarage(int capacity, string name)
         {
             ActiveGarage = new Garage<Vehicle>(capacity, name);
-            Garages.Add(name, ActiveGarage);
+            
+            if (!Garages.ContainsKey(name)) Garages.Add(name, ActiveGarage);
+            else throw new ArgumentException($"Garaget med namn '{name}' redan finns.");
         }
 
         public int GetGarageCapacity()
