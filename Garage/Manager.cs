@@ -72,50 +72,88 @@ namespace Garage
 
         private void AddVehicle()
         {
+            float placesLeft = _Handler.GetGaragePlacesLeft();
+            _UI.ShowMessage($"{_GarageTitle} har {ToFraction(placesLeft)} platser kvar.");
+
             if (!_Handler.GarageInitialised)
             {
                 _UI.ShowMessage("\nGaraget är inte skapat än. Du måste skappa ett garage först.");
                 return;
             }
 
-
-
-            int capacity = _Handler.GetGarageCapacity();
-            if (capacity <= 0)
+            if (placesLeft <= 0.2f)
             {
-                _UI.ShowMessage("\nGaraget har ingen kapacitet. Du måste ta bort minst ett fordon först.");
-                _UI.ShowMessage($"{_GarageTitle} kapacitet: {capacity}");
+                _UI.ShowMessage("\nGaraget har ingen plats kvar. Du måste ta bort minst ett fordon först.");
                 return;
             }
-
-            int placesLeft = _Handler.GetGaragePlacesLeft();
 
             var addVehicleOptions = new Dictionary<int, Action>();
             var addVehicleMessages = new Dictionary<int, string>();
 
-            addVehicleOptions.Add(1, () => AddVehicleOfType<Car>(FactoryCar));
-            addVehicleOptions.Add(2, () => AddVehicleOfType<Motorcycle>(FactoryMotorcycle));
-            addVehicleMessages.Add(1, "Lägg till bil");
-            addVehicleMessages.Add(2, "Lägg till motorcykel");
-
-            if (placesLeft >= 2)
+            if (_Handler.GarageType is Vehicle)
             {
-                addVehicleOptions.Add(3, () => AddVehicleOfType<Bus>(FactoryBus));
-                addVehicleOptions.Add(4, () => AddVehicleOfType<Boat>(FactoryBoat));
-                addVehicleMessages.Add(3, "Lägg till buss");
-                addVehicleMessages.Add(4, "Lägg till båt");
+                if (placesLeft > 0.2f)
+                {
+                    addVehicleOptions.Add(0, () => AddVehicleOfType<Motorcycle>(FactoryMotorcycle));
+                    addVehicleMessages.Add(0, "Lägg till motorcykel");
+                }
+
+                if (placesLeft >= 1)
+                {
+                    addVehicleOptions.Add(1, () => AddVehicleOfType<Car>(FactoryCar));
+                    addVehicleMessages.Add(1, "Lägg till bil");
+                }
+
+
+                if (placesLeft >= 2)
+                {
+                    addVehicleOptions.Add(3, () => AddVehicleOfType<Bus>(FactoryBus));
+                    addVehicleOptions.Add(4, () => AddVehicleOfType<Boat>(FactoryBoat));
+                    addVehicleMessages.Add(3, "Lägg till buss");
+                    addVehicleMessages.Add(4, "Lägg till båt");
+                }
+
+                if (placesLeft >= 3)
+                {
+                    addVehicleOptions.Add(5, () => AddVehicleOfType<Airplane>(FactoryAirplane));
+                    addVehicleMessages.Add(5, "Lägg till flygplan");
+                }
+
+                _UI.ShowSubMenu("Välj fordonstyp att lägga till:", addVehicleOptions, addVehicleMessages);
             }
 
-            if (placesLeft >= 3)
+            if (_Handler.GarageType is Motorcycle)
             {
-                addVehicleOptions.Add(5, () => AddVehicleOfType<Airplane>(FactoryAirplane));
-                addVehicleMessages.Add(5, "Lägg till flygplan");
+                addVehicleOptions.Add(0, () => AddVehicleOfType<Motorcycle>(FactoryMotorcycle));
+                addVehicleMessages.Add(0, "Lägg till motorcykel");
             }
 
-            _UI.ShowSubMenu("Välj fordonstyp att lägga till:", addVehicleOptions, addVehicleMessages);
+            if (_Handler.GarageType is Car)
+            {
+                addVehicleOptions.Add(0, () => AddVehicleOfType<Car>(FactoryCar));
+                addVehicleMessages.Add(0, "Lägg till bil");
+            }
+
+            if (_Handler.GarageType is Bus)
+            {
+                addVehicleOptions.Add(0, () => AddVehicleOfType<Bus>(FactoryBus));
+                addVehicleMessages.Add(0, "Lägg till Buss");
+            }
+
+            if (_Handler.GarageType is Boat)
+            {
+                addVehicleOptions.Add(0, () => AddVehicleOfType<Boat>(FactoryBoat));
+                addVehicleMessages.Add(0, "Lägg till båt");
+            }
+
+            if (_Handler.GarageType is Airplane)
+            {
+                addVehicleOptions.Add(0, () => AddVehicleOfType<Airplane>(FactoryAirplane));
+                addVehicleMessages.Add(0, "Lägg till bil");
+            }
         }
 
-        private void AddVehicleOfType<T>(Func<T> factory) where T : Vehicle
+        private void AddVehicleOfType<T>(Func<T> factory) where T : IVehicle
         {
             // mindre upprepning med en lite Factory xD
             bool quit = false;
@@ -335,6 +373,29 @@ namespace Garage
             {
                 _UI.ShowMessage($"Antalet kan inte vara mer än Garages kapacitet!");
             }
+        }
+
+        public static string ToFraction(float value, int maxDenominator = 10)
+        {
+            int numerator = (int)Math.Round(value * maxDenominator);
+            int denominator = maxDenominator;
+
+            int gcd = GCD(numerator, denominator);
+            numerator /= gcd;
+            denominator /= gcd;
+
+            return $"{numerator}/{denominator}";
+        }
+
+        private static int GCD(int a, int b)
+        {
+            while (b != 0)
+            {
+                int temp = b;
+                b = a % b;
+                a = temp;
+            }
+            return Math.Abs(a);
         }
 
         private string GeneratePlate()

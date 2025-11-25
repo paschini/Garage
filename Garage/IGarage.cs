@@ -10,7 +10,7 @@
 
         int Count { get; }
 
-        int AvailablePlaces { get; }
+        float AvailablePlaces { get; }
     }
     public interface IGarage<T> : IGarage where T : IVehicle
     {

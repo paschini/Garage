@@ -14,8 +14,9 @@ namespace Garage
         public Type VehicleType { get; } = typeof(T);
         public int Count { get; private set; }
         public int Capacity { get; private set; }
-        private int _availablePlaces;
-        public int AvailablePlaces
+        
+        private float _availablePlaces;
+        public float AvailablePlaces
         {
             get => _availablePlaces / 3;
             private set => _availablePlaces = value;
@@ -48,14 +49,14 @@ namespace Garage
 
         public void AddVehicle(T vehicle)
         {
-            if (Count >= Capacity) throw new InvalidOperationException("Garage is full!");
-            if (CountPlaces(vehicle) >= AvailablePlaces) throw new InvalidOperationException("Garage is full!");
+            //if (Count >= Capacity) throw new InvalidOperationException("Garage is full!");
+            if (CountPlaces(vehicle) > _availablePlaces) throw new InvalidOperationException($"Garage is full! available places: {AvailablePlaces}");
 
             if (vehicle is null) throw new ArgumentNullException(nameof(vehicle), "Vehicle cannot be null!");
 
             _vehicles[Count] = vehicle;
             Count++;
-            AvailablePlaces -= CountPlaces(vehicle);
+            _availablePlaces -= CountPlaces(vehicle);
         }
 
         public T RemoveVehicle(int index)
