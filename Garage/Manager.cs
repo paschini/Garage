@@ -30,8 +30,9 @@ namespace GarageSystem
            if (_GarageTitle == null) // menar att vi skapar en andra ny garage
             {
                 _GarageTitle = _UI.GetStringInput("Vad ska garaget heta? ", "Namn kan inte vara tomt!");
-                _UI.ShowMessage("Garaget tillräckligt typer: car, motorcycle, airplane, bus, boat.");
-                _UI.ShowMessage("Garaget kan ta bara en typ av fordon.");
+                _UI.ShowMessage("Garaget tillräckligt typer: car, motorcycle, airplane, bus, boat, vehicle.");
+                _UI.ShowMessage("Vanliga garaget kan ta bara en typ av fordon.");
+                _UI.ShowMessage("Garaget av vehicle typ är endast som kan ta olika fordon.");
                 _GarageType = _UI.GetStringInput("Vilken typ av garage vill du ha? ", "Typ kan inte vara tomt!");
                 _GarageCapacity = _UI.GetIntInput("Hur många platser till fordon finns i garaget? ", "Kapacitet i garaget måste vara en hel nummer: ");
             }
@@ -65,6 +66,12 @@ namespace GarageSystem
                 if (_GarageType?.ToLower() == "airplane")
                 {
                     Garage<Airplane> newGarage = new(_GarageCapacity ?? 0, _GarageTitle);
+                    _Handler = new GarageHandler(newGarage);
+                }
+
+                if (_GarageType?.ToLower() == "vehicle")
+                {
+                    Garage<Vehicle> newGarage = new(_GarageCapacity ?? 0, _GarageTitle);
                     _Handler = new GarageHandler(newGarage);
                 }
 

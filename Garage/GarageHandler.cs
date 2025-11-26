@@ -90,10 +90,10 @@ namespace GarageSystem
 
         private IVehicle GenerateRandomVehicle()
         {
-            string[] Brands = { "Ford", "BMW", "Honda", "Tesla", "Volvo" };
-            string[] Colors = { "Red", "Blue", "Black", "White", "Neon Green" };
-            string[] CarModels = { "Focus", "Civic", "3-Series", "Model 3" };
-            string[] MotoModels = { "Ninja", "Hornet", "Shadow" };
+            string[] Brands = ["Ford", "BMW", "Honda", "Tesla", "Volvo"];
+            string[] Colors = ["Red", "Blue", "Black", "White", "Neon Green"];
+            string[] CarModels = ["Focus", "Civic", "3-Series", "Model 3"];
+            string[] MotoModels = ["Ninja", "Hornet", "Shadow"];
 
             string[] TrunkContents = { "hund", "katt", "hunder", "katter", "Påsar", "Grejer", "" };
 
@@ -112,7 +112,7 @@ namespace GarageSystem
                 return car;
             }
             
-            if (GarageType == typeof(Motorcycle) || GarageType.IsSubclassOf(typeof(Motorcycle))))
+            if (GarageType == typeof(Motorcycle) || GarageType.IsSubclassOf(typeof(Motorcycle)))
             {
                 IVehicle moto = new Motorcycle(
                     registration: GeneratePlate(),
@@ -129,15 +129,11 @@ namespace GarageSystem
 
         private string GeneratePlate()
         {
-            Random r = new Random();
+            Random r = new();
 
-            string letters = new string(Enumerable.Range(0, 3)
-                .Select(_ => (char)r.Next('A', 'Z' + 1))
-                .ToArray());
+            string letters = new([.. Enumerable.Range(0, 3).Select(_ => (char)r.Next('A', 'Z' + 1))]);
 
-            string digits = new string(Enumerable.Range(0, 3)
-                .Select(_ => (char)r.Next('0', '9' + 1))
-                .ToArray());
+            string digits = new([.. Enumerable.Range(0, 3).Select(_ => (char)r.Next('0', '9' + 1))]);
 
             return letters + digits;
         }

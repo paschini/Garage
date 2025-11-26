@@ -32,6 +32,26 @@ namespace GarageSystem.Tests
             Assert.AreEqual(targetCapacity, garage.Capacity);
         }
 
+        [TestMethod()]
+        public void Garage_NotCreated_AnyTypeOfGarageIsCreated()
+        {
+            int targetCapacity = 1;
+            
+            Garage<Vehicle> garage1 = new(targetCapacity, "");
+            Garage<Car> garage2 = new(targetCapacity, "");
+            Garage<Motorcycle> garage3 = new(targetCapacity, "");
+            Garage<Bus> garage4 = new(targetCapacity, "");
+            Garage<Boat> garage5 = new(targetCapacity, "");
+            Garage<Airplane> garage6 = new(targetCapacity, "");
+
+            Assert.AreEqual(targetCapacity, garage1.Capacity);
+            Assert.AreEqual(targetCapacity, garage2.Capacity);
+            Assert.AreEqual(targetCapacity, garage3.Capacity);
+            Assert.AreEqual(targetCapacity, garage4.Capacity);
+            Assert.AreEqual(targetCapacity, garage5.Capacity);
+            Assert.AreEqual(targetCapacity, garage6.Capacity);
+        }
+
         [TestCategory("AddVehicle")]
         [TestMethod()]
         public void AddVehicle_UnderCapacity_VehicleIsAdded()
@@ -122,7 +142,7 @@ namespace GarageSystem.Tests
             garage.RemoveVehicle(0);
             var allVehicles = garage.AllVehicles.ToList();
 
-            Assert.AreEqual(allVehicles.Count, 0);
+            Assert.AreEqual(allVehicles.Count, targetCapacity - 1);
         }
 
         [TestMethod()]
@@ -151,11 +171,11 @@ namespace GarageSystem.Tests
             garage.AddVehicle(vehicle1);
             garage.AddVehicle(vehicle2);
 
-            Assert.AreEqual(garage.Count, 2);
+            Assert.AreEqual(garage.Count, targetCapacity);
 
             garage.RemoveVehicle(0);
 
-            Assert.AreEqual(garage.Count, 1);
+            Assert.AreEqual(garage.Count, targetCapacity - 1);
         }
 
         [TestCategory("Find and Search")]

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace GarageSystem
 {
-    public abstract class Vehicle 
+    public abstract class Vehicle : IVehicle
     {
         public string Type => this.GetType().Name;
         public string Registration { get; set; }
@@ -21,14 +21,5 @@ namespace GarageSystem
             Model = model;
             Color = color;
         }
-
-        //public bool Equals(Vehicle? other)
-        //{
-        //    if (other is null) return false;
-        //    return Registration == other.Registration &&
-        //           Make == other.Make &&
-        //           Model == other.Model &&
-        //           Color == other.Color;
-        //}
     }
 }
