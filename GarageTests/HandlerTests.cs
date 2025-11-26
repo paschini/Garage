@@ -232,7 +232,20 @@ namespace GarageSystem.Tests
             CollectionAssert.AreEquivalent(new List<Vehicle> { vehicle4 }, results.ToList());
         }
 
-        [TestCategory("Exception Tests")]
+        [TestMethod()]
+        public void Populate_EmptyGarage_GarageHasTotalVehicles()
+        {
+            int targetCapacity = 10;
+
+            GarageHandler handler = new GarageHandler(new Garage<Car>(targetCapacity, ""));
+            bool result = handler.Populate(targetCapacity);
+
+            Assert.IsTrue(result);
+            Assert.AreEqual(targetCapacity, handler.GetAllVehicles().Count());
+        }
+
+
+            [TestCategory("Exception Tests")]
         [TestMethod()]
         public void GetVehicle_IndexOutOfRange_ThrowsArgumentOutOfRangeException()
         {

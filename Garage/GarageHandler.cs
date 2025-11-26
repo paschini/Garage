@@ -99,7 +99,7 @@ namespace GarageSystem
 
             Random rand = new Random();
 
-            if (typeof(Vehicle) == typeof(Car) || (typeof(Vehicle).IsSubclassOf(typeof(Car))))
+            if (GarageType == typeof(Car) || GarageType.IsSubclassOf(typeof(Car)))
             {
                 // Safe cast to T after creating Car
                 IVehicle car = new Car(
@@ -112,7 +112,7 @@ namespace GarageSystem
                 return car;
             }
             
-            if (typeof(Vehicle) == typeof(Motorcycle) || (typeof(Vehicle).IsSubclassOf(typeof(Motorcycle))))
+            if (GarageType == typeof(Motorcycle) || GarageType.IsSubclassOf(typeof(Motorcycle))))
             {
                 IVehicle moto = new Motorcycle(
                     registration: GeneratePlate(),
@@ -124,7 +124,7 @@ namespace GarageSystem
                 return moto;
             }
 
-            throw new NotSupportedException($"Random generation for type {typeof(Vehicle).Name} is not supported.");
+            throw new NotSupportedException($"Random generation for type {typeof(IVehicle).Name} is not supported.");
         }
 
         private string GeneratePlate()

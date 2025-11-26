@@ -80,7 +80,7 @@ namespace GarageSystem
         {
             float placesLeft = _Handler.GetGaragePlacesLeft();
             _UI.ShowMessage($"{_GarageTitle} kan ta {_GarageType} ({_Handler.GarageType})");
-            _UI.ShowMessage($"{_GarageTitle} har {placesLeft} platser kvar.");
+            _UI.ShowMessage($"{_GarageTitle} har {ToFraction(placesLeft)} platser kvar.");
 
             if (!_Handler.GarageInitialised)
             {
@@ -376,16 +376,26 @@ namespace GarageSystem
         {
             _UI.ShowMessage($"Populära {_GarageTitle} med en antal slumpmässigt fordon...");
             _UI.ShowMessage($"Vi garantera inte att det kommer inte uppreppa!");
+            _UI.ShowMessage($"Garaget måste vara av typ `car´ eller ´motorcycle´.");
 
             int antalFordon = _UI.GetIntInput("\nHur många fordon vill du ha i garaget?  ", "Du måste mata en hel nummer!");
-            bool result = _Handler.Populate(antalFordon);
-            if (result) 
+
+            try
             {
-                _UI.ShowMessage($"Garaget är populärade!");
+                bool result = _Handler.Populate(antalFordon);
+
+                if (result)
+                {
+                    _UI.ShowMessage($"Garaget är populärade!");
+                }
+                else
+                {
+                    _UI.ShowMessage($"Antalet kan inte vara mer än Garages kapacitet!");
+                }
             }
-            else
+            catch (Exception ex)
             {
-                _UI.ShowMessage($"Antalet kan inte vara mer än Garages kapacitet!");
+                _UI.ShowMessage($"Nått gick fel: {ex.Message}");
             }
         }
 
