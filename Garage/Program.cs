@@ -1,4 +1,4 @@
-﻿namespace Garage
+﻿namespace GarageSystem
 {
     internal class Program
     {

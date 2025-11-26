@@ -4,21 +4,18 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Garage
+namespace GarageSystem
 {
     public class ConsoleUI : IUI
     {   
-        public string GarageTitle { get; private set; } = "No Title";
-
         public Dictionary<int, string> MainMenuOptions { get; }
         public Dictionary<int, Action> MainMenuActions { get; }
 
 
        
 
-        public ConsoleUI(string title, Dictionary<int, Action> options, Dictionary<int, string> messages)
+        public ConsoleUI(Dictionary<int, Action> options, Dictionary<int, string> messages)
         {
-            GarageTitle = title;
             MainMenuActions = options;
             MainMenuOptions = messages;
 
@@ -26,15 +23,13 @@ namespace Garage
             MainMenuOptions.Add(0, "Sluta Applikation");
         }
 
-        public void SetTitle(string title) { GarageTitle = title; }
-
-        public void ShowMainMenu()
+        public void ShowMainMenu(string title)
         {
             Console.Clear();
 
             while(true)
             {
-                Console.WriteLine($"Välkommen till {GarageTitle}");
+                Console.WriteLine($"Välkommen till {title}");
 
                 if (MainMenuActions.Count == 0 || MainMenuOptions.Count == 0 || MainMenuActions.Count != MainMenuOptions.Count)
                 {
@@ -47,7 +42,7 @@ namespace Garage
                     Console.WriteLine($"{action.Key}: {MainMenuOptions[action.Key]}");
                 }
 
-                Console.Write("Navigaate by choosing an option: ");
+                Console.Write("Navigra vid att välja en alternativ: ");
                 
                 var input = Console.ReadLine();
                 if (int.TryParse(input, out int choice) && MainMenuActions.ContainsKey(choice))
@@ -56,15 +51,15 @@ namespace Garage
                 }
                 else
                 {
-                    Console.WriteLine($"Invalid option. You must choose one of {MainMenuActions.Keys}");
+                    Console.WriteLine($"Fel alternativ. Du måste välja en av {MainMenuActions.Keys}");
                 }
             }
         }
 
-        public void ShowSubMenu(string subMenuTitle, Dictionary<int, Action> SubMenuActions, Dictionary<int, string> SubMenuOptions)
+        public void ShowSubMenu(string title, string subMenuTitle, Dictionary<int, Action> SubMenuActions, Dictionary<int, string> SubMenuOptions)
         {
 
-            SubMenuActions.Add(0, ShowMainMenu);
+            SubMenuActions.Add(0, () => ShowMainMenu(title));
             SubMenuOptions.Add(0, "Tillback till Main Meny");
 
             Console.Clear();

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Text.Json;
 
-namespace Garage
+namespace GarageSystem
 {
     public class ConfigRepository
     {

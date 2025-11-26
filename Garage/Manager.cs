@@ -1,67 +1,73 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics.Metrics;
+using System.Drawing;
 using System.Linq;
+using System.Reflection;
 using System.Reflection.Metadata;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 
-namespace Garage
+namespace GarageSystem
 {
     internal class Manager
     {
         private IUI _UI = null!; // vet bara om UI
-        private dynamic _Handler = null!; // vet inte om UI, vet om Garage
-        private string? _GarageTitle { get; set; } = string.Empty;
-        private string? _GarageType { get; set; } = string.Empty;
-        private int? _GarageCapacity = 0;
-        private Config? _Config { get; set; } = new Config();
+        private IHandler _Handler = null!; // vet inte om UI, vet om Garage
+        private string? _GarageTitle { get; set; } = null;
+        private string? _GarageType { get; set; } = null;
+        private int? _GarageCapacity = null;
+        private Config? _Config { get; set; } = null;
 
-        private List<dynamic> _HandlerList { get; set; } = [];
+        private List<IHandler> _HandlerList { get; set; } = [];
 
         private void CreateGarage()
         {
-            if (_GarageTitle == null)
+           if (_GarageTitle == null) // menar att vi skapar en andra ny garage
             {
                 _GarageTitle = _UI.GetStringInput("Vad ska garaget heta? ", "Namn kan inte vara tomt!");
-                _UI.SetTitle(_GarageTitle);
-                _UI.ShowMessage("Garaget tillräckligt typer: vehicle, car, motorcycle, airplane, bus, boat.");
-                _UI.ShowMessage("Faraget av typ vehicle kan ta varje all typer.");
+                _UI.ShowMessage("Garaget tillräckligt typer: car, motorcycle, airplane, bus, boat.");
+                _UI.ShowMessage("Garaget kan ta bara en typ av fordon.");
                 _GarageType = _UI.GetStringInput("Vilken typ av garage vill du ha? ", "Typ kan inte vara tomt!");
-            }
-
-            int capacity = _UI.GetIntInput("Hur många fordon platser till fordon har garaget? ", "Kapacitet i garaget måste vara en hel nummer: ");
-
-            switch (_GarageType?.ToLower())
-            {
-                case "vehicle":
-                    _Handler = new GarageHandler<Vehicle>();
-                    break;
-                case "car":
-                    _Handler = new GarageHandler<Car>();
-                    break;
-                case "mororcycle":
-                    _Handler = new GarageHandler<Motorcycle>();
-                    break;
-                case "airplane":
-                    _Handler = new GarageHandler<Airplane>();
-                    break;
-                case "bus":
-                    _Handler = new GarageHandler<Bus>();
-                    break;
-                case "boat":
-                    _Handler = new GarageHandler<Boat>();
-                    break;
-                default:
-                    _Handler = new GarageHandler<Vehicle>();
-                    break;
+                _GarageCapacity = _UI.GetIntInput("Hur många platser till fordon finns i garaget? ", "Kapacitet i garaget måste vara en hel nummer: ");
             }
 
             try
             {
-                _Handler.CreateGarage(capacity, _GarageTitle);
+                if (_GarageType?.ToLower() == "car")
+                {
+                    Garage<Car> newGarage = new(_GarageCapacity ?? 0, _GarageTitle);
+                    _Handler = new GarageHandler(newGarage);
+                }
+
+                if (_GarageType?.ToLower() == "motorcycle")
+                {
+                    Garage<Motorcycle> newGarage = new(_GarageCapacity ?? 0, _GarageTitle);
+                    _Handler = new GarageHandler(newGarage);
+                }
+
+                if (_GarageType?.ToLower() == "bus")
+                {
+                    Garage<Bus> newGarage = new(_GarageCapacity ?? 0, _GarageTitle);
+                    _Handler = new GarageHandler(newGarage);
+                }
+
+                if (_GarageType?.ToLower() == "boat")
+                {
+                    Garage<Bus> newGarage = new(_GarageCapacity ?? 0, _GarageTitle);
+                    _Handler = new GarageHandler(newGarage);
+                }
+
+                if (_GarageType?.ToLower() == "airplane")
+                {
+                    Garage<Airplane> newGarage = new(_GarageCapacity ?? 0, _GarageTitle);
+                    _Handler = new GarageHandler(newGarage);
+                }
+
                 _HandlerList.Add(_Handler);
             } 
             catch (Exception ex)
@@ -73,7 +79,8 @@ namespace Garage
         private void AddVehicle()
         {
             float placesLeft = _Handler.GetGaragePlacesLeft();
-            _UI.ShowMessage($"{_GarageTitle} har {ToFraction(placesLeft)} platser kvar.");
+            _UI.ShowMessage($"{_GarageTitle} kan ta {_GarageType} ({_Handler.GarageType})");
+            _UI.ShowMessage($"{_GarageTitle} har {placesLeft} platser kvar.");
 
             if (!_Handler.GarageInitialised)
             {
@@ -90,7 +97,7 @@ namespace Garage
             var addVehicleOptions = new Dictionary<int, Action>();
             var addVehicleMessages = new Dictionary<int, string>();
 
-            if (_Handler.GarageType is Vehicle)
+            if (_Handler.GarageType == typeof(Vehicle))
             {
                 if (placesLeft > 0.2f)
                 {
@@ -119,54 +126,53 @@ namespace Garage
                     addVehicleMessages.Add(5, "Lägg till flygplan");
                 }
 
-                _UI.ShowSubMenu("Välj fordonstyp att lägga till:", addVehicleOptions, addVehicleMessages);
+                _UI.ShowSubMenu(_GarageTitle ?? string.Empty, "Välj fordonstyp att lägga till:", addVehicleOptions, addVehicleMessages);
             }
 
-            if (_Handler.GarageType is Motorcycle)
+            if (_Handler.GarageType == typeof(Motorcycle))
             {
                 addVehicleOptions.Add(0, () => AddVehicleOfType<Motorcycle>(FactoryMotorcycle));
                 addVehicleMessages.Add(0, "Lägg till motorcykel");
             }
 
-            if (_Handler.GarageType is Car)
+            if (_Handler.GarageType == typeof(Car))
             {
                 addVehicleOptions.Add(0, () => AddVehicleOfType<Car>(FactoryCar));
                 addVehicleMessages.Add(0, "Lägg till bil");
             }
 
-            if (_Handler.GarageType is Bus)
+            if (_Handler.GarageType == typeof(Bus))
             {
                 addVehicleOptions.Add(0, () => AddVehicleOfType<Bus>(FactoryBus));
                 addVehicleMessages.Add(0, "Lägg till Buss");
             }
 
-            if (_Handler.GarageType is Boat)
+            if (_Handler.GarageType == typeof(Boat))
             {
                 addVehicleOptions.Add(0, () => AddVehicleOfType<Boat>(FactoryBoat));
                 addVehicleMessages.Add(0, "Lägg till båt");
             }
 
-            if (_Handler.GarageType is Airplane)
+            if (_Handler.GarageType == typeof(Airplane))
             {
                 addVehicleOptions.Add(0, () => AddVehicleOfType<Airplane>(FactoryAirplane));
                 addVehicleMessages.Add(0, "Lägg till bil");
             }
         }
 
-        private void AddVehicleOfType<T>(Func<T> factory) where T : IVehicle
+        private void AddVehicleOfType<T>(Action factory) where T : Vehicle
         {
             // mindre upprepning med en lite Factory xD
             bool quit = false;
             while (!quit)
             {
-                var vehicle = factory(); // constructor delegat
                 try
                 {
-                    _Handler.AddVehicle(vehicle);
+                   factory();
                 }
                 catch (Exception e)
                 {
-                    _UI.ShowMessage($"nååt gick fel: {e.Message}");
+                    _UI.ShowMessage($"Nått gick fel: {e.Message}");
                 }
 
                 _UI.ShowMessage($"Kapacitet nu: {_Handler.GetGarageCapacity()}");
@@ -177,7 +183,7 @@ namespace Garage
             }
         }
 
-        private Car FactoryCar()
+        private void FactoryCar()
         {
             _UI.ShowMessage("\nLägger till en bil: ");
             string registrationNumber = _UI.GetStringInput("Ange registreringsnummer: ", "Registreringsnummer kan inte vara tomt!");
@@ -185,11 +191,10 @@ namespace Garage
             string model = _UI.GetStringInput("Ange bilmodell: ", "Bilmodell kan inte vara tomt!");
             string color = _UI.GetStringInput("Ange bilfärg: ", "Bilfärg kan inte vara tomt!");
             string trunkContent = _UI.GetStringInput("Ange innehåll i bagageutrymmet: ", "Innehåll i bagageutrymmet kan inte vara tomt!");
-
-            return new Car(registrationNumber, make, model, color, trunkContent);
+            Car newCar = new Car(registrationNumber, make, model, color, trunkContent);
+            _Handler.AddVehicle(newCar);
         }
-
-        private Motorcycle FactoryMotorcycle()
+        private void FactoryMotorcycle()
         {
             _UI.ShowMessage("\nLägger till en motorcykel: ");
             string registrationNumber = _UI.GetStringInput("Ange registreringsnummer: ", "Registreringsnummer kan inte vara tomt!");
@@ -205,10 +210,11 @@ namespace Garage
 
             bool isUtility = utility.Equals("ja");
 
-            return new Motorcycle(registrationNumber, make, model, color, isUtility);
+            Motorcycle newMoto = new Motorcycle(registrationNumber, make, model, color, isUtility);
+            _Handler.AddVehicle(newMoto);
         }
 
-        private Bus FactoryBus()
+        private void FactoryBus()
         {
             _UI.ShowMessage("\nLägger till en buss: ");
             string registrationNumber = _UI.GetStringInput("Ange registreringsnummer: ", "Registreringsnummer kan inte vara tomt!");
@@ -217,10 +223,11 @@ namespace Garage
             string color = _UI.GetStringInput("Ange bussfärg: ", "Bilfärg kan inte vara tomt!");
             string linjeID = _UI.GetStringInput("Ange buss linje ID: ", "Linje ID kan inte vara tomt!");
 
-            return new Bus(registrationNumber, make, model, color, linjeID);
+            Bus newBus = new Bus(registrationNumber, make, model, color, linjeID);
+            _Handler.AddVehicle(newBus);
         }
 
-        private Boat FactoryBoat()
+        private void FactoryBoat()
         {
             _UI.ShowMessage("\nLägger till en båt: ");
             string registrationNumber = _UI.GetStringInput("Ange registreringsnummer: ", "Registreringsnummer kan inte vara tomt!");
@@ -234,10 +241,11 @@ namespace Garage
                 _UI.GetStringInput("Är det en utility motorcykel? (ja/nej): ", "Du måste ange 'segelbåt', 'motorbåt' eller 'katamaran'!");
             }
 
-            return new Boat(registrationNumber, make, model, color, boatType);
+            Boat newBoat = new Boat(registrationNumber, make, model, color, boatType);
+            _Handler.AddVehicle(newBoat);
         }
 
-        private Airplane FactoryAirplane()
+        private void FactoryAirplane()
         {
             _UI.ShowMessage("\nLägger till ett flygplan: ");
             string registrationNumber = _UI.GetStringInput("Ange registreringsnummer: ", "Registreringsnummer kan inte vara tomt!");
@@ -253,19 +261,20 @@ namespace Garage
                 wingSpanInput = _UI.GetStringInput("Ange vingbredd i meter (positivt nummer): ", "Vingbredd måste vara ett positivt nummer!");
             }
 
-            return new Airplane(registrationNumber, make, model, color, wingSpan, engines);
+            Airplane newAirplane = new Airplane(registrationNumber, make, model, color, wingSpan, engines);
+            _Handler.AddVehicle(newAirplane);
         }
 
         private void ListVehicles()
         {
-            if (_Handler.GarageNotInitialised)
+            if (!_Handler.GarageInitialised)
             {
                 _UI.ShowMessage("\nGaraget är inte skapat än. Du måste skappa ett garage först.");
                 return;
             }
 
             var vehicles = _Handler.GetAllVehicles();
-            int vehicleCount = vehicles.Count();
+            int vehicleCount = vehicles?.Count() ?? 0;
             if (vehicleCount == 0)
             {
                 _UI.ShowMessage("\nInga fordon i garaget.");
@@ -277,22 +286,28 @@ namespace Garage
             for (int index = 0; index < vehicleCount; index++)
             {
                 var vehicle = _Handler.GetVehicle(index);
-                _UI.ShowMessage($"  {index}. {vehicle.Registration} {vehicle.Make} {vehicle.Model} {vehicle.Color}");
-                // TODO: jag kan lägga till formatering som i PluralSight videon :)
+                try
+                {
+                    _UI.ShowMessage($"  {index}. {vehicle?.Registration} {vehicle?.Make} {vehicle?.Model} {vehicle?.Color}");
+                }
+                catch (Exception ex)
+                {
+                    _UI.ShowMessage($"Nått gick fel: {ex.Message}");
+                }
             }
             _UI.ShowMessage("-----------------------------------------------------------------\n");
         }
 
         private void RemoveVehicle()
         {
-            if (_Handler.GarageNotInitialised)
+            if (!_Handler.GarageInitialised)
             {
                 _UI.ShowMessage("\nGaraget är inte skapat än. Du måste skappa ett garage först.\n");
                 return;
             }
 
             var vehicles = _Handler.GetAllVehicles();
-            int vehicleCount = vehicles.Count();
+            int vehicleCount = vehicles?.Count() ?? 0;
             if (vehicleCount == 0)
             {
                 _UI.ShowMessage("\nInga fordon i garaget att ta bort.\n");
@@ -308,8 +323,8 @@ namespace Garage
 
             try
             {
-                Vehicle removed = _Handler.RemoveVehicle(indexToRemove);
-                _UI.ShowMessage($"Fordonet {removed.Registration} har tagits bort från garaget.\n");
+                IVehicle? removed = _Handler.RemoveVehicle(indexToRemove);
+                _UI.ShowMessage($"Fordonet {removed?.Registration} har tagits bort från garaget.\n");
             }
             catch (Exception ex)
             {
@@ -321,7 +336,7 @@ namespace Garage
         {
             _UI.ShowMessage("Hittar fordon via registreringsnummer: ");
             string registrationNumber = _UI.GetStringInput("Ange registreringsnummer att söka efter: ", "Registreringsnummer kan inte vara tomt!");
-            Vehicle? found = _Handler.FindByRegistraation(registrationNumber);
+            IVehicle? found = _Handler.FindByRegistraation(registrationNumber);
             // TODO: behövs inte egen funktion i Handler, jag kan hitta med Search("registration=XYZ") ta bort?
             if (found is not null)
             {
@@ -340,15 +355,14 @@ namespace Garage
             _UI.ShowMessage("Söker fordon via egenskaper: ");
             string searchTerm = _UI.GetStringInput("Ange sökterm (ex: model=Tesla;color=red): ", "Sökterm kan inte vara tomt!");
 
-            IEnumerable<Vehicle>? found = _Handler.Search(searchTerm);
+            IEnumerable<IVehicle>? found = _Handler.Search(searchTerm);
             if (found is not null)
             {
                 _UI.ShowMessage("Alla Fordon hittat: \n");
                 _UI.ShowMessage("-----------------------------------------------------------------");
-                foreach (var vehicle in found)
+                foreach (Vehicle vehicle in found)
                 {
                     _UI.ShowMessage($" {vehicle.Registration} {vehicle.Make} {vehicle.Model} {vehicle.Color}");
-                    // TODO: jag kan lägga till formatering som i PluralSight videon :)
                 }
                 _UI.ShowMessage("-----------------------------------------------------------------\n");
             }
@@ -375,7 +389,7 @@ namespace Garage
             }
         }
 
-        public static string ToFraction(float value, int maxDenominator = 10)
+        public string ToFraction(float value, int maxDenominator = 10)
         {
             int numerator = (int)Math.Round(value * maxDenominator);
             int denominator = maxDenominator;
@@ -387,7 +401,7 @@ namespace Garage
             return $"{numerator}/{denominator}";
         }
 
-        private static int GCD(int a, int b)
+        private int GCD(int a, int b)
         {
             while (b != 0)
             {
@@ -398,49 +412,39 @@ namespace Garage
             return Math.Abs(a);
         }
 
-        private string GeneratePlate()
-        {
-            Random r = new Random();
-
-            string letters = new string(Enumerable.Range(0, 3)
-                .Select(_ => (char)r.Next('A', 'Z' + 1))
-                .ToArray());
-
-            string digits = new string(Enumerable.Range(0, 3)
-                .Select(_ => (char)r.Next('0', '9' + 1))
-                .ToArray());
-
-            return letters + digits;
-        }
-
         private void SaveData()
         {
-            _UI.ShowMessage($"Sparar {_GarageTitle} till JSON fil..");
-            try
+            if (_GarageTitle != null)
             {
-                _Handler.SaveData(_GarageTitle);
-                _UI.ShowMessage("Klart.\n");
-            }
-            catch (Exception ex) 
-            {
-                _UI.ShowMessage($"Nått gick fel:  {ex.Message}\n");
-            }
+                _UI.ShowMessage($"Sparar {_GarageTitle} till JSON fil..");
+                try
+                {
+                    _Handler.SaveData(_GarageTitle);
+                    _UI.ShowMessage("Klart.\n");
+                }
+                catch (Exception ex)
+                {
+                    _UI.ShowMessage($"Nått gick fel:  {ex.Message}\n");
+                }
 
+            }
         }
 
         private void LoadData()
         {
-            _UI.ShowMessage($"Laddar sparade JSON fil till {_GarageTitle}...");
-            try
+            if (_GarageTitle != null)
             {
-                _Handler.LoadData(_GarageTitle);
-                _UI.ShowMessage("Klart.\n");
+                _UI.ShowMessage($"Laddar sparade JSON fil till {_GarageTitle}...");
+                try
+                {
+                    _Handler.LoadData(_GarageTitle);
+                    _UI.ShowMessage("Klart.\n");
+                }
+                catch (Exception ex)
+                {
+                    _UI.ShowMessage($"Nått gick fel:  {ex.Message}\n");
+                }
             }
-            catch (Exception ex)
-            {
-                _UI.ShowMessage($"Nått gick fel:  {ex.Message}\n");
-            }
-
         }
 
         private void SwitchActiveHandler()
@@ -453,14 +457,13 @@ namespace Garage
 
             for (int i = 0; i < _HandlerList.Count; i++)
             {
-                _UI.ShowMessage($"{i}. {_HandlerList[i].Garage.Name}");
+                _UI.ShowMessage($"{i}.{_HandlerList[i].GarageName}");
             }
 
             int choice = _UI.GetIntInput("Ange nummer av garaget: ", "Du måste mata in en nummer.");
 
-            _GarageTitle = _HandlerList[choice].Garage.Name;
-            Type garageType = _HandlerList[choice].GarageType;
-            _GarageType = nameof(garageType);
+            _GarageTitle = _HandlerList[choice].GarageName;
+            _GarageType = _HandlerList[choice].GarageType.Name;
             _Handler = _HandlerList[choice];
         }
 
@@ -496,25 +499,21 @@ namespace Garage
                 { 10, "Bytta activa garage" },
             };
 
-            if (_Config == null)
-            {
-                _UI.ShowMessage("Inget config hittades, vi måste sätta upp.");
-                _UI.ShowMessage("------------------------------------------");
-                _GarageTitle = _UI.GetStringInput("Vad ska garaget heta? ", "Namn kan inte vara tomt!");
-                _UI.SetTitle(_GarageTitle);
-                _UI.ShowMessage("Garaget tillräckligt typer: vehicle, car, motorcycle, airplane, bus, boat.");
-                _UI.ShowMessage("Faraget av typ vehicle kan ta varje all typer.");
-                _GarageType = _UI.GetStringInput("Vilken typ av garage vill du ha? ", "Typ kan inte vara tomt!");
-            } else
+            _UI = new ConsoleUI(mainMenuOptions, mainMenuMessages);
+
+            if (_Config != null)
             {
                 _GarageTitle = _Config.GarageTitle!;
                 _GarageType = _Config.GarageType!;
                 _GarageCapacity = _Config.GarageCapacity!;
+
+                _Config = null; // använd config bara på Init   
             }
-
-            _UI = new ConsoleUI(_GarageTitle, mainMenuOptions, mainMenuMessages);
-
-            
+            else
+            {
+                _UI.ShowMessage("Inget config hittades, vi måste sätta upp.");
+                _UI.ShowMessage("------------------------------------------");
+            }
 
             CreateGarage();
         }
@@ -522,12 +521,12 @@ namespace Garage
         public void Run()
         {
             Init();
-            _UI.ShowMainMenu();
+            _UI.ShowMainMenu(_GarageTitle ?? string.Empty);
         }
 
         private Config? ReadConfigFile()
         {
-            ConfigRepository repo = new ConfigRepository("config.json");
+            ConfigRepository repo = new("config.json");
             return repo.LoadConfig();
         }
     }

@@ -8,73 +8,66 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 
-namespace Garage
+namespace GarageSystem
 {
-    public class GarageHandler<T> : IHandler<T> where T : IVehicle
-        //public class GarageHandler<T> where T : Vehicle
+    public class GarageHandler : IHandler
     {
-        public IGarage<T>? Garage { get; private set; } = null;
+        public GarageHandler(IGarage garage)
+        {
+            Garage = garage;
+        }
 
-        public Type GarageType { get; } = typeof(T);
+        public IGarage Garage { get; private set; }
+
+        public Type GarageType => Garage?.VehicleType ?? typeof(object);
+
+        public string GarageName { get; private set; } = string.Empty;
 
         public bool GarageInitialised => Garage is not null;
-
-        public void CreateGarage(int capacity, string name)
-        {
-            Garage = new Garage<T>(capacity, name);
-        }
 
         public int GetGarageCapacity()
         {
             return Garage != null ? Garage.Capacity : 0;
         }
 
-        public int GetGaragePlacesLeft()
+        public float GetGaragePlacesLeft()
         {
             return Garage != null ? Garage.AvailablePlaces : 0;
         }
 
-        public int GetCurrentVehicleCount()
+        public int? GetCurrentVehicleCount()
         {
-            if (Garage is null) throw new InvalidOperationException("Garage is not initialised!");
-            return Garage.Count;
+            return Garage?.Count;
         }
 
-        public IEnumerable<T> GetAllVehicles()
+        public IEnumerable<IVehicle> GetAllVehicles()
         {
-            if (Garage is null) throw new InvalidOperationException("Garage is not initialised!");
             return Garage.AllVehicles;
         }
 
-        public T GetVehicle(int index)
+        public IVehicle? GetVehicle(int index)
         {
-            if (Garage is null) throw new InvalidOperationException("Garage is not initialised!");
-
             return Garage.GetVehicleAtIndex(index);
         }
 
 
-        public void AddVehicle(T vehicle)
+        public void AddVehicle(IVehicle vehicle)
         {
-            if (Garage is null) throw new InvalidOperationException("Garage is not initialised!");
-            Garage.AddVehicle(vehicle);
+            Garage?.AddVehicle(vehicle);
         }
 
-        public T RemoveVehicle(int index)
+        public IVehicle? RemoveVehicle(int index)
         {
-            if (Garage is null) throw new InvalidOperationException("Garage is not initialised!");
-            return Garage.RemoveVehicle(index);
+            return Garage?.RemoveVehicle(index);
         }
 
-        public T? FindByRegistraation(string registration)
+        public IVehicle? FindByRegistraation(string registration)
         {
-            if (Garage is null) throw new InvalidOperationException("Garage is not initialised!");
             return Garage.FindVehicleByRegistration(registration);
         }
 
-        public IEnumerable<T> Search(string searchTerm)
+        public IEnumerable<IVehicle> Search(string searchTerm)
         {
-            if (Garage is null) throw new InvalidOperationException("Garage is not initialised!");
             return Garage.SearchVehicles(searchTerm);
         }
 
@@ -86,7 +79,7 @@ namespace Garage
             {
                 for (int i = 0; i < total; i++)
                 {
-                    T generated = GenerateRandomVehicle();
+                    IVehicle generated = GenerateRandomVehicle();
                     Garage.AddVehicle(generated);
                 }
 
@@ -95,7 +88,7 @@ namespace Garage
             return false;
         }
 
-        private T GenerateRandomVehicle()
+        private IVehicle GenerateRandomVehicle()
         {
             string[] Brands = { "Ford", "BMW", "Honda", "Tesla", "Volvo" };
             string[] Colors = { "Red", "Blue", "Black", "White", "Neon Green" };
@@ -106,32 +99,32 @@ namespace Garage
 
             Random rand = new Random();
 
-            if (typeof(T) == typeof(Vehicle) || typeof(T) == typeof(Car) || (typeof(T).IsSubclassOf(typeof(Car))))
+            if (typeof(Vehicle) == typeof(Car) || (typeof(Vehicle).IsSubclassOf(typeof(Car))))
             {
                 // Safe cast to T after creating Car
-                object car = new Car(
+                IVehicle car = new Car(
                     registration: GeneratePlate(),
                     make: Brands[rand.Next(Brands.Length)],
                     model: CarModels[rand.Next(CarModels.Length)],
                     color: Colors[rand.Next(Colors.Length)],
                     trunkContent: TrunkContents[rand.Next(TrunkContents.Length)]
                 );
-                return (T)car;
+                return car;
             }
             
-            if (typeof(T) == typeof(Motorcycle) || (typeof(T).IsSubclassOf(typeof(Motorcycle))))
+            if (typeof(Vehicle) == typeof(Motorcycle) || (typeof(Vehicle).IsSubclassOf(typeof(Motorcycle))))
             {
-                object moto = new Motorcycle(
+                IVehicle moto = new Motorcycle(
                     registration: GeneratePlate(),
                     make: Brands[rand.Next(Brands.Length)],
                     model: MotoModels[rand.Next(MotoModels.Length)],
                     color: Colors[rand.Next(Colors.Length)],
                     isUtility: rand.Next(2) == 0
                 );
-                return (T)moto;
+                return moto;
             }
 
-            throw new NotSupportedException($"Random generation for type {typeof(T).Name} is not supported.");
+            throw new NotSupportedException($"Random generation for type {typeof(Vehicle).Name} is not supported.");
         }
 
         private string GeneratePlate()
@@ -151,9 +144,7 @@ namespace Garage
 
         public void SaveData(string fileName)
         {
-            if (Garage is null) throw new InvalidOperationException("Garage is not initialised!");
-
-            GarageRepository<T> repo = new GarageRepository<T>($"{fileName}.json");
+            GarageRepository repo = new GarageRepository($"{fileName}.json");
             repo.Save(Garage.AllVehicles);
         }
 
@@ -161,8 +152,8 @@ namespace Garage
         {
             if (Garage is null) throw new InvalidOperationException("Garage is not initialised!");
 
-            GarageRepository<T> repo = new GarageRepository<T>($"{fileName}.json");
-            IEnumerable<T> savedVehicles = repo.Load(fileName);
+            GarageRepository repo = new GarageRepository($"{fileName}.json");
+            IEnumerable<IVehicle> savedVehicles = repo.Load(fileName);
             if (savedVehicles.Count() > 0) Garage.LoadVehicles(savedVehicles);
         }
     }

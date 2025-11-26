@@ -4,17 +4,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Garage
+namespace GarageSystem
 {
-    public class Boat : Vehicle
+    public class Boat : Vehicle, IVehicle
     {
         public string BoatType { get; }
         public Boat(string registration, string make, string model, string color, string boatType) : base(registration, make, model, color)
         {
-            Registration = registration;
-            Make = make;
-            Model = model;
-            Color = color;
             BoatType = boatType;
         }
     }

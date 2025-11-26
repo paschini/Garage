@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Garage
+namespace GarageSystem
 {
-    public abstract class Vehicle : IVehicle, IEquatable<Vehicle>
+    public abstract class Vehicle 
     {
         public string Type => this.GetType().Name;
         public string Registration { get; set; }
@@ -22,14 +22,13 @@ namespace Garage
             Color = color;
         }
 
-        public bool Equals(Vehicle? other)
-        {
-            if (Registration == other?.Registration && Make == other.Make && Model == other.Model && Color == other.Color)
-            {
-                return true;
-            }
-
-            return false;
-        }
+        //public bool Equals(Vehicle? other)
+        //{
+        //    if (other is null) return false;
+        //    return Registration == other.Registration &&
+        //           Make == other.Make &&
+        //           Model == other.Model &&
+        //           Color == other.Color;
+        //}
     }
 }

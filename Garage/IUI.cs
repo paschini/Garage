@@ -4,19 +4,15 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Garage
+namespace GarageSystem
 {
     internal interface IUI
     {
-        string GarageTitle { get; }
-
         Dictionary<int, Action> MainMenuActions { get; }
 
-        public void SetTitle(string title);
+        void ShowMainMenu(string title);
 
-        void ShowMainMenu();
-
-        void ShowSubMenu(string title, Dictionary<int, Action> actions, Dictionary<int, string> options);
+        void ShowSubMenu(string title, string subTitle, Dictionary<int, Action> actions, Dictionary<int, string> options);
 
         void ShowMessage(string message);
 

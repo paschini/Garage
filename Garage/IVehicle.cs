@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Garage
+namespace GarageSystem
 {
     public interface IVehicle
     {
@@ -13,5 +13,12 @@ namespace Garage
         string Make { get; set; }
         string Model { get; set; }
         string Color { get; set; }
+
+
+
+        //public IVehicle ToIVehicle()
+        //{
+        //    return this as IVehicle
+        //}
     }
 }

@@ -1,17 +1,18 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Quic;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Garage
+namespace GarageSystem
 {
-    public class Garage<T> : IGarage<T> where T : IVehicle
+    public class Garage<T> : IGarage, IGarage<T>, IEnumerable<T> where T : IVehicle
     {
         private T[] _vehicles;
+        public Type VehicleType => typeof(T);
         public string Name { get; }
-        public Type VehicleType { get; } = typeof(T);
         public int Count { get; private set; }
         public int Capacity { get; private set; }
         
@@ -21,7 +22,8 @@ namespace Garage
             get => _availablePlaces / 3;
             private set => _availablePlaces = value;
         }
-        public IEnumerable<T> AllVehicles => _vehicles.Take(Count);
+
+        public IEnumerable<IVehicle> AllVehicles => (IEnumerable<IVehicle>)_vehicles.Take(Count);
 
         public Garage(int capacity, string name)
         {
@@ -50,7 +52,7 @@ namespace Garage
         public void AddVehicle(T vehicle)
         {
             //if (Count >= Capacity) throw new InvalidOperationException("Garage is full!");
-            if (CountPlaces(vehicle) > _availablePlaces) throw new InvalidOperationException($"Garage is full! available places: {AvailablePlaces}");
+            if (_availablePlaces - CountPlaces(vehicle) < 0) throw new InvalidOperationException($"Garage is full! available places: {AvailablePlaces}");
 
             if (vehicle is null) throw new ArgumentNullException(nameof(vehicle), "Vehicle cannot be null!");
 
@@ -143,6 +145,47 @@ namespace Garage
             }
 
             Count = list.Count;
+        }
+
+        public void LoadVehicles(IEnumerable<IVehicle> vehicle)
+        {
+
+        }
+
+        public IEnumerator<T> GetEnumerator()
+        {
+            return (IEnumerator<T>)_vehicles.Take(Count);
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
+        }
+
+        public void AddVehicle(IVehicle vehicle)
+        {
+            AddVehicle((T) vehicle);
+        }
+
+        IVehicle IGarage.RemoveVehicle(int index)
+        {
+            return RemoveVehicle(index);
+        }
+
+        IVehicle IGarage.GetVehicleAtIndex(int index)
+        {
+            return GetVehicleAtIndex(index);
+        }
+
+        IVehicle? IGarage.FindVehicleByRegistration(string registration)
+        {
+            return FindVehicleByRegistration(registration);
+        }
+
+        IEnumerable<IVehicle> IGarage.SearchVehicles(string searchTerm)
+        {
+            IEnumerable<T> vehicles = _vehicles;
+            return (IEnumerable<IVehicle>) SearchVehicles(searchTerm);
         }
     }
 }

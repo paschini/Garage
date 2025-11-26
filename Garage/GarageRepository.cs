@@ -5,9 +5,9 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 
-namespace Garage
+namespace GarageSystem
 {
-    public class GarageRepository<T> where T : IVehicle
+    public class GarageRepository
     {
         private readonly string _filePath;
 
@@ -16,7 +16,7 @@ namespace Garage
             _filePath = filePath;
         }
 
-        public void Save(IEnumerable<T> vehicles)
+        public void Save(IEnumerable<IVehicle> vehicles)
         {
             var json = JsonSerializer.Serialize(vehicles, new JsonSerializerOptions
             {
@@ -27,12 +27,12 @@ namespace Garage
             File.WriteAllText(_filePath, json);
         }
 
-        public IEnumerable<T> Load(string fileName)
+        public IEnumerable<IVehicle> Load(string fileName)
         {
-            if (!File.Exists(_filePath ?? fileName)) return new List<T>();
+            if (!File.Exists(_filePath ?? fileName)) return new List<IVehicle>();
 
             var json = File.ReadAllText(_filePath ?? fileName);
-            return JsonSerializer.Deserialize<List<T>>(json) ?? new List<T>();
+            return JsonSerializer.Deserialize<List<IVehicle>>(json) ?? new List<IVehicle>();
         }
     }
 }

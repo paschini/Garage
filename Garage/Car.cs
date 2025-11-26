@@ -4,19 +4,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Garage
+namespace GarageSystem
 {
-    public class Car : Vehicle
+    public class Car : Vehicle, IVehicle
     {
         public string TrunkContent { get; } = string.Empty;
 
         public Car(string registration, string make, string model, string color, string trunkContent) : base(registration, make, model, color)
         {
-            Registration = registration;
-            Make = make;
-            Model = model;
-            Color = color;
-
             TrunkContent = trunkContent;
         }
     }
