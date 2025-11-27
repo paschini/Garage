@@ -1,4 +1,4 @@
-﻿namespace GarageSystem
+﻿namespace Garage.Domain
 {
     public interface IGarage 
     {

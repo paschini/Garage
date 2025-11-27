@@ -6,7 +6,7 @@ using System.Net.Quic;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace GarageSystem
+namespace Garage.Domain
 {
     public class Garage<T> : IGarage, IGarage<T>, IEnumerable<T> where T : IVehicle
     {

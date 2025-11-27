@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Garage.Domain;
+using GarageSystem;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
@@ -8,7 +10,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 
-namespace GarageSystem
+namespace Garage.Management
 {
     public class GarageHandler : IHandler
     {
@@ -97,7 +99,7 @@ namespace GarageSystem
 
             string[] TrunkContents = { "hund", "katt", "hunder", "katter", "Påsar", "Grejer", "" };
 
-            Random rand = new Random();
+            Random rand = new();
 
             if (GarageType == typeof(Car) || GarageType.IsSubclassOf(typeof(Car)))
             {
@@ -148,7 +150,7 @@ namespace GarageSystem
         {
             if (Garage is null) throw new InvalidOperationException("Garage is not initialised!");
 
-            GarageRepository repo = new GarageRepository($"{fileName}.json");
+            GarageRepository repo = new($"{fileName}.json");
             IEnumerable<IVehicle> savedVehicles = repo.Load(fileName);
             if (savedVehicles.Count() > 0) Garage.LoadVehicles(savedVehicles);
         }

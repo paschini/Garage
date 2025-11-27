@@ -4,11 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace GarageSystem
+namespace Garage.Domain
 {
     public abstract class Vehicle : IVehicle
     {
-        public string Type => this.GetType().Name;
+        public string Type => GetType().Name;
         public string Registration { get; set; }
         public string Make { get; set; }
         public string Model { get; set; } 

@@ -1,10 +1,10 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using GarageSystem;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Garage.Domain;
 
 namespace GarageSystem.Tests
 {
@@ -253,14 +253,14 @@ namespace GarageSystem.Tests
         public void Search_MathcingManyProps_ReturnsRedFerrariCarsWithRegistration()
         {
             int targetCapacity = 6;
-            Garage<Car> garage = new(targetCapacity, "");
+            Garage<Vehicle> garage = new(targetCapacity, "");
 
             Car vehicle1 = new("XYZ789", "Ford", "Mustang", "Red", "");
             Car vehicle2 = new("XYZ789", "Tesla", "X", "Red", "");
             Car vehicle3 = new("XYZ789", "Ferrari", "458 Italia", "Red", "");
             Car vehicle4 = new("GHI012", "Ferrari", "F8 Tributo", "Red", "");
             Car vehicle5 = new("XYZ123", "Lamborghini", "Murcielago", "Neon Green", "");
-            Car vehicle6 = new("PQR234", "Chevrolet", "Camaro", "Blue", "");
+            Motorcycle vehicle6 = new("PQR234", "Kawasaki", "Ninja", "Red", false);
 
             garage.AddVehicle(vehicle1);
             garage.AddVehicle(vehicle2);

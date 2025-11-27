@@ -1,12 +1,13 @@
-﻿using System;
+﻿using Garage.Domain;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace GarageSystem
+namespace Garage.Management
 {
-    internal interface IHandler
+    public interface IHandler
     {
         IGarage Garage { get; }
         Type GarageType { get; }

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace GarageSystem
+namespace Garage.Domain
 {
     public class Bus : Vehicle, IVehicle
     {
