@@ -23,11 +23,15 @@ namespace Garage.UILayer
 
         public void ShowMainMenu(string title)
         {
-            Console.Clear();
-
-            while(true)
+            if (MainMenuActions.Count != MainMenuOptions.Count)
             {
-                Console.WriteLine($"Välkommen till {title}");
+                throw new ArgumentException($"Argument count doesnt match.");
+            }
+
+            while (true)
+            {
+                Console.Clear();
+                Console.WriteLine($"Välkommen till {title}\n\n");
 
                 if (MainMenuActions.Count == 0 || MainMenuOptions.Count == 0 || MainMenuActions.Count != MainMenuOptions.Count)
                 {
@@ -40,7 +44,7 @@ namespace Garage.UILayer
                     Console.WriteLine($"{action.Key}: {MainMenuOptions[action.Key]}");
                 }
 
-                Console.Write("Navigra vid att välja en alternativ: ");
+                Console.Write("\nNavigra vid att välja en alternativ: ");
                 
                 var input = Console.ReadLine();
                 if (int.TryParse(input, out int choice) && MainMenuActions.ContainsKey(choice))
@@ -49,43 +53,38 @@ namespace Garage.UILayer
                 }
                 else
                 {
-                    Console.WriteLine($"Fel alternativ. Du måste välja en av {MainMenuActions.Keys}");
+                    Console.WriteLine($"\nFel alternativ. Du måste välja en av {MainMenuActions.Keys}");
+                    Console.ReadKey();
                 }
+
+                Console.ReadKey(); // Visa medelander inan att rensa ut
             }
         }
 
-        public void ShowSubMenu(string title, string subMenuTitle, Dictionary<int, Action> SubMenuActions, Dictionary<int, string> SubMenuOptions)
+        public int ShowSubMenu(string title, string subMenuTitle, Dictionary<int, string> SubMenuOptions)
         {
+            SubMenuOptions.Add(0, "Tillbaka till Main Meny");
 
-            SubMenuActions.Add(0, () => ShowMainMenu(title));
-            SubMenuOptions.Add(0, "Tillback till Main Meny");
-
-            Console.Clear();
-            Console.WriteLine(subMenuTitle);
-
-            while (true)
+            while(true)
             {
-                if (SubMenuActions.Count == 0 || SubMenuOptions.Count == 0 || SubMenuActions.Count != SubMenuOptions.Count)
-                {
-                    Console.WriteLine("Fel Meny");
-                    return;
-                }
+                Console.Clear();
+                Console.WriteLine(subMenuTitle);
 
-                foreach (var action in SubMenuActions)
+                foreach (var action in SubMenuOptions)
                 {
                     Console.WriteLine($"{action.Key}: {SubMenuOptions[action.Key]}");
                 }
 
-                Console.Write("Navigera vid att välja en anledning: ");
+                Console.Write("\nNavigera vid att välja en alternativ: ");
 
                 var input = Console.ReadLine();
-                if (int.TryParse(input, out int choice) && SubMenuActions.ContainsKey(choice))
+                if (int.TryParse(input, out int choice) && SubMenuOptions.ContainsKey(choice))
                 {
-                    SubMenuActions[choice].Invoke();
+                    return choice;
                 }
                 else
                 {
-                    Console.WriteLine($"Fel anledning. Du måste välja en av {SubMenuActions.Keys}");
+                    Console.WriteLine($"Fel alternativ. Du måste välja en av {SubMenuOptions.Keys}");
                 }
             }
         }
@@ -97,7 +96,7 @@ namespace Garage.UILayer
 
         public void ShowError(Exception ex)
         {
-            Console.WriteLine(ex.Message);
+            Console.WriteLine($"Nått gick fel: {ex.Message}");
         }
 
         private T GetUserInput<T>(string message, string errorMessage, Func<string, (bool ok, T value)> parser)
@@ -120,43 +119,37 @@ namespace Garage.UILayer
 
         public string GetStringInput(string message, string errorMessage) => GetUserInput(message, errorMessage, input => (!string.IsNullOrWhiteSpace(input), input!));
 
-        public IVehicleInput? GetVehicleOfTypeInput(Type garageType)
+        public IVehicleInput? GetInputForVehicleOfType(Type vehicleType)
         {
             IVehicleInput? vehicleToCreate = null;
-            bool quit = false;
-            while (!quit)
+            try
             {
-                try
+                switch (vehicleType.Name)
                 {
-                    switch (garageType.Name)
-                    {
-                        case "Car":
-                            vehicleToCreate = AskCarParameters();
-                            break;
-                        case "Motorcycle":
-                            vehicleToCreate = AskMotorcycleParameters();
-                            break;
-                        case "Bus":
-                            vehicleToCreate = AskBusParameters();
-                            break;
-                        case "Boat":
-                            vehicleToCreate = AskBoatParameters();
-                            break;
-                        case "Airplane":
-                            vehicleToCreate = AskAirplaneParameters();
-                            break;
-                        default:
-                            vehicleToCreate = AskCarParameters();
-                            break;
-                    }
+                    case "Car":
+                        vehicleToCreate = AskCarParameters();
+                        break;
+                    case "Motorcycle":
+                        vehicleToCreate = AskMotorcycleParameters();
+                        break;
+                    case "Bus":
+                        vehicleToCreate = AskBusParameters();
+                        break;
+                    case "Boat":
+                        vehicleToCreate = AskBoatParameters();
+                        break;
+                    case "Airplane":
+                        vehicleToCreate = AskAirplaneParameters();
+                        break;
+                    default:
+                        vehicleToCreate = AskCarParameters();
+                        break;
                 }
-                catch (Exception ex)
-                {
-                    ShowError(ex);
-                }
-
-                string choice = GetStringInput("\nLägga en till bil? Mata in q och sluta: ", "<Enter> eller q ");
-                quit = choice.Equals("q");
+            }
+            catch (Exception ex)
+            {
+                ShowError(ex);
+                return null;
             }
 
             return vehicleToCreate;
@@ -240,72 +233,107 @@ namespace Garage.UILayer
             return VehicleInput.AirplaneInputDTO.Build(registrationNumber, make, model, color, wingSpan, engines);
         }
 
-        public Tuple<Dictionary<int, Action>, Dictionary<int, string>> CreateAddVehicleMenuOptions(string GarageTitle, float placesLeft, Type GarageType)
+        public Dictionary<int, string> CreateAddVehicleMenuOptions(string GarageTitle, float placesLeft, Type GarageType)
         {
-            var addVehicleOptions = new Dictionary<int, Action>();
+            var addVehicleOptions = new Dictionary<int, Func<int>>();
             var addVehicleMessages = new Dictionary<int, string>();
 
             if (GarageType == typeof(Vehicle))
             {
                 if (placesLeft > 0.2f)
                 {
-                    addVehicleOptions.Add(0, () => GetVehicleOfTypeInput(GarageType));
-                    addVehicleMessages.Add(0, "Lägg till motorcykel");
+                    addVehicleOptions.Add(1, () => {
+                        GetInputForVehicleOfType(typeof(Motorcycle));
+                        return 1;
+                    });
+                    addVehicleMessages.Add(1, "Lägg till motorcykel");
                 }
 
                 if (placesLeft >= 1)
                 {
-                    addVehicleOptions.Add(1, () => GetVehicleOfTypeInput(GarageType));
-                    addVehicleMessages.Add(1, "Lägg till bil");
+                    addVehicleOptions.Add(2, () =>
+                    {
+                        GetInputForVehicleOfType(typeof(Car));
+                        return 2;
+                    });
+                    addVehicleMessages.Add(2, "Lägg till bil xxxxxx");
                 }
 
 
                 if (placesLeft >= 2)
                 {
-                    addVehicleOptions.Add(3, () => GetVehicleOfTypeInput(GarageType));
-                    addVehicleOptions.Add(4, () => GetVehicleOfTypeInput(GarageType));
+                    addVehicleOptions.Add(3, () =>
+                    {
+                        GetInputForVehicleOfType(typeof(Bus));
+                        return 3;
+                    });
+                    addVehicleOptions.Add(4, () =>
+                    {
+                        GetInputForVehicleOfType(typeof(Boat));
+                        return 4;
+                    });
                     addVehicleMessages.Add(3, "Lägg till buss");
                     addVehicleMessages.Add(4, "Lägg till båt");
                 }
 
                 if (placesLeft >= 3)
                 {
-                    addVehicleOptions.Add(5, () => GetVehicleOfTypeInput(GarageType));
+                    addVehicleOptions.Add(5, () =>
+                    {
+                        GetInputForVehicleOfType(typeof(Airplane));
+                        return 5;
+                    });
                     addVehicleMessages.Add(5, "Lägg till flygplan");
                 }
             }
 
             if ((GarageType) == typeof(Motorcycle))
             {
-                addVehicleOptions.Add(0, () => GetVehicleOfTypeInput(GarageType));
-                addVehicleMessages.Add(0, "Lägg till motorcykel");
+                addVehicleOptions.Add(1, () => {
+                GetInputForVehicleOfType(GarageType);
+                    return 1;
+                });
+                addVehicleMessages.Add(1, "Lägg till motorcykel");
             }
 
             if (GarageType == typeof(Car))
             {
-                addVehicleOptions.Add(0, () => GetVehicleOfTypeInput(GarageType));
-                addVehicleMessages.Add(0, "Lägg till bil");
+                addVehicleOptions.Add(1, () =>
+                {
+                    GetInputForVehicleOfType(GarageType);
+                    return 2;
+                });
+                addVehicleMessages.Add(1, "Lägg till bil");
             }
 
             if (GarageType == typeof(Bus))
             {
-                addVehicleOptions.Add(0, () => GetVehicleOfTypeInput(GarageType));
-                addVehicleMessages.Add(0, "Lägg till Buss");
+                addVehicleOptions.Add(1, () => {
+                GetInputForVehicleOfType(GarageType);
+                    return 3;
+                });
+                addVehicleMessages.Add(1, "Lägg till Buss");
             }
 
             if (GarageType == typeof(Boat))
             {
-                addVehicleOptions.Add(0, () => GetVehicleOfTypeInput(GarageType));
-                addVehicleMessages.Add(0, "Lägg till båt");
+                addVehicleOptions.Add(1, () => {
+                GetInputForVehicleOfType(GarageType);
+                    return 4;
+                });
+                addVehicleMessages.Add(1, "Lägg till båt");
             }
 
             if (GarageType == typeof(Airplane))
             {
-                addVehicleOptions.Add(0, () => GetVehicleOfTypeInput(GarageType));
-                addVehicleMessages.Add(0, "Lägg till bil");
+                addVehicleOptions.Add(1, () => {
+                GetInputForVehicleOfType(GarageType);
+                    return 5;
+                });
+                addVehicleMessages.Add(1, "Lägg till bil");
             }
 
-            return Tuple.Create(addVehicleOptions, addVehicleMessages);
+            return addVehicleMessages;
         }
     }
 }

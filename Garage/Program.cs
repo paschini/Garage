@@ -16,6 +16,7 @@ namespace GarageSystem
                     // services.AddSingleton<IConfiguration>(config);
                     services.AddSingleton<Manager>(); 
                     services.AddSingleton<IUI, ConsoleUI>();
+                    services.AddSingleton<IHandler, GarageHandler>();
                     services.AddSingleton<IGarageFactory, GarageFactory>();
                     services.AddSingleton<IVehicleFactory, VehicleFactory>();
                 })
@@ -23,9 +24,6 @@ namespace GarageSystem
                 .Build();
 
             host.Services.GetRequiredService<Manager>().Run();
-
-            //Manager manager = new Manager();
-            //manager.Run();
         }
     }
 }

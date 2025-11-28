@@ -12,9 +12,10 @@ namespace Garage.Domain
 {
     internal class VehicleFactory : IVehicleFactory
     {
+        
         public IVehicle? Create(IVehicleInput? input)
         {
-            if(input != null) { return null; }
+            if(input is null) { return null; }
 
             return input switch
             {
