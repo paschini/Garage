@@ -210,8 +210,9 @@ namespace Garage.Management
         private void Populate()
         {
             _UI.ShowMessage($"Populära {_GarageTitle} med en antal slumpmässigt fordon...");
-            _UI.ShowMessage($"Vi garantera inte att det kommer inte uppreppa!");
-            _UI.ShowMessage($"Garaget måste vara av typ `car´ eller ´motorcycle´.");
+            _UI.ShowMessage($"Vi garantera inte att det kommer inte uppreppa eller att modeler ska vara rätt på brands!");
+            _UI.ShowMessage($"Garaget måste vara av typ ´bus´, `car´, ´motorcycle´ eller ´vehicle´.");
+            _UI.ShowMessage($"Vehicle Garaget kommer fillas med cars.");
 
             int antalFordon = _UI.GetIntInput("\nHur många fordon vill du ha i garaget?  ", "Du måste mata en hel nummer!");
 

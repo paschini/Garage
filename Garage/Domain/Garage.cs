@@ -34,7 +34,7 @@ namespace Garage.Domain
             AvailablePlaces = capacity * 3;
         }
 
-        private int CountPlaces(T vehicle)
+        public int CountPlaces(T vehicle)
         {
             switch (vehicle)
             {

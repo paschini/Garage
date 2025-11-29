@@ -75,38 +75,58 @@ namespace Garage.Management
 
         public bool Populate(int total)
         {
-            if (Garage is null) throw new InvalidOperationException("Garage is not initialised!");
+            if (Garage is null) throw new InvalidOperationException("Det finns inget garaget! Du måste skapa en först.");
 
-            if (Garage.Count + total <= Garage.Capacity)
+            for (int i = 0; i <= total; i++)
             {
-                for (int i = 0; i < total; i++)
+                IVehicle generated = GenerateRandomVehicle();
+                if (Garage.CountPlaces(generated) <= Garage.AvailablePlaces)
                 {
-                    IVehicle generated = GenerateRandomVehicle();
                     Garage.AddVehicle(generated);
+                } else {
+                    return i > 0;
                 }
-
-                return true;
             }
+
             return false;
         }
 
         private IVehicle GenerateRandomVehicle()
         {
-            string[] Brands = ["Ford", "BMW", "Honda", "Tesla", "Volvo"];
             string[] Colors = ["Red", "Blue", "Black", "White", "Neon Green"];
+
+            string[] CarBrands = ["Ford", "BMW", "Honda", "Tesla", "Volvo"];
             string[] CarModels = ["Focus", "Civic", "3-Series", "Model 3"];
+
+            string[] MotoBrands = ["Kawsaaki", "Ducatti", "BMW", "Yamaha", "Honda"];
             string[] MotoModels = ["Ninja", "Hornet", "Shadow"];
+
+            string[] BusBrands = ["Mercedes", "Volvo"];
+            string[] BusModels = ["Citaro", "Intouro", "Volvo 7700", "Volvo 7700", "Volvo B12BLE"];
 
             string[] TrunkContents = { "hund", "katt", "hunder", "katter", "Påsar", "Grejer", "" };
 
             Random rand = new();
+
+            if (GarageType == typeof(Vehicle))
+            {
+                // Safe cast to T after creating Car
+                IVehicle car = new Car(
+                    registration: GeneratePlate(),
+                    make: CarBrands[rand.Next(CarBrands.Length)],
+                    model: CarModels[rand.Next(CarModels.Length)],
+                    color: Colors[rand.Next(Colors.Length)],
+                    trunkContent: TrunkContents[rand.Next(TrunkContents.Length)]
+                );
+                return car;
+            }
 
             if (GarageType == typeof(Car) || GarageType.IsSubclassOf(typeof(Car)))
             {
                 // Safe cast to T after creating Car
                 IVehicle car = new Car(
                     registration: GeneratePlate(),
-                    make: Brands[rand.Next(Brands.Length)],
+                    make: CarBrands[rand.Next(CarBrands.Length)],
                     model: CarModels[rand.Next(CarModels.Length)],
                     color: Colors[rand.Next(Colors.Length)],
                     trunkContent: TrunkContents[rand.Next(TrunkContents.Length)]
@@ -118,8 +138,20 @@ namespace Garage.Management
             {
                 IVehicle moto = new Motorcycle(
                     registration: GeneratePlate(),
-                    make: Brands[rand.Next(Brands.Length)],
+                    make: MotoBrands[rand.Next(CarBrands.Length)],
                     model: MotoModels[rand.Next(MotoModels.Length)],
+                    color: Colors[rand.Next(Colors.Length)],
+                    isUtility: rand.Next(2) == 0
+                );
+                return moto;
+            }
+
+            if (GarageType == typeof(Bus) || GarageType.IsSubclassOf(typeof(Bus)))
+            {
+                IVehicle moto = new Motorcycle(
+                    registration: GeneratePlate(),
+                    make: BusBrands[rand.Next(CarBrands.Length)],
+                    model: BusModels[rand.Next(MotoModels.Length)],
                     color: Colors[rand.Next(Colors.Length)],
                     isUtility: rand.Next(2) == 0
                 );
