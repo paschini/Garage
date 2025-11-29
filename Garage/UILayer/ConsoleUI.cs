@@ -1,9 +1,12 @@
 ﻿using Garage.Domain;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
+using System.Reflection.Metadata.Ecma335;
 using System.Text;
 using System.Threading.Tasks;
+using static Garage.UILayer.VehicleInput;
 
 namespace Garage.UILayer
 {
@@ -44,7 +47,7 @@ namespace Garage.UILayer
                     Console.WriteLine($"{action.Key}: {MainMenuOptions[action.Key]}");
                 }
 
-                Console.Write("\nNavigra vid att välja en alternativ: ");
+                Console.Write("\nNavigera vid att välja en alternativ: ");
                 
                 var input = Console.ReadLine();
                 if (int.TryParse(input, out int choice) && MainMenuActions.ContainsKey(choice))
@@ -80,6 +83,7 @@ namespace Garage.UILayer
                 var input = Console.ReadLine();
                 if (int.TryParse(input, out int choice) && SubMenuOptions.ContainsKey(choice))
                 {
+                    if (choice == 0) ShowMainMenu(title);
                     return choice;
                 }
                 else
@@ -121,38 +125,16 @@ namespace Garage.UILayer
 
         public IVehicleInput? GetInputForVehicleOfType(Type vehicleType)
         {
-            IVehicleInput? vehicleToCreate = null;
-            try
+            return vehicleType.Name switch
             {
-                switch (vehicleType.Name)
-                {
-                    case "Car":
-                        vehicleToCreate = AskCarParameters();
-                        break;
-                    case "Motorcycle":
-                        vehicleToCreate = AskMotorcycleParameters();
-                        break;
-                    case "Bus":
-                        vehicleToCreate = AskBusParameters();
-                        break;
-                    case "Boat":
-                        vehicleToCreate = AskBoatParameters();
-                        break;
-                    case "Airplane":
-                        vehicleToCreate = AskAirplaneParameters();
-                        break;
-                    default:
-                        vehicleToCreate = AskCarParameters();
-                        break;
-                }
-            }
-            catch (Exception ex)
-            {
-                ShowError(ex);
-                return null;
-            }
+                "Car" => AskCarParameters(),
+                "Motorcycle" => AskMotorcycleParameters(),
+                "Bus" => AskBusParameters(),
+                "Boat" => AskBoatParameters(),
+                "Airplane" => AskAirplaneParameters(),
 
-            return vehicleToCreate;
+                _ => throw new InvalidOperationException("Valid argumet values aare 1 thru 5")
+            };
         }
 
         private VehicleInput.CarInputDTO AskCarParameters()
@@ -235,102 +217,49 @@ namespace Garage.UILayer
 
         public Dictionary<int, string> CreateAddVehicleMenuOptions(string GarageTitle, float placesLeft, Type GarageType)
         {
-            var addVehicleOptions = new Dictionary<int, Func<int>>();
-            var addVehicleMessages = new Dictionary<int, string>();
+           var addVehicleMessages = new Dictionary<int, string>();
 
-            if (GarageType == typeof(Vehicle))
+            switch (GarageType.Name)
             {
-                if (placesLeft > 0.2f)
-                {
-                    addVehicleOptions.Add(1, () => {
-                        GetInputForVehicleOfType(typeof(Motorcycle));
-                        return 1;
-                    });
-                    addVehicleMessages.Add(1, "Lägg till motorcykel");
-                }
-
-                if (placesLeft >= 1)
-                {
-                    addVehicleOptions.Add(2, () =>
+                case "Motorcycle":
+                    addVehicleMessages.Add(1, "Motorcykel");
+                    break;
+                case "Car":
+                    addVehicleMessages.Add(2, "Bil");
+                    break;
+                case "Bus":
+                    addVehicleMessages.Add(3, "Buss");
+                    break;
+                case "Boat":
+                    addVehicleMessages.Add(4, "Båt");
+                    break;
+                case "Airplane":
+                    addVehicleMessages.Add(5, "Flyggplan");
+                    break;
+                case "Vehicle":
+                    if (placesLeft > 0.2f)
                     {
-                        GetInputForVehicleOfType(typeof(Car));
-                        return 2;
-                    });
-                    addVehicleMessages.Add(2, "Lägg till bil xxxxxx");
-                }
+                        addVehicleMessages.Add(1, "Motorcykel");
+                    }
 
-
-                if (placesLeft >= 2)
-                {
-                    addVehicleOptions.Add(3, () =>
+                    if (placesLeft >= 1)
                     {
-                        GetInputForVehicleOfType(typeof(Bus));
-                        return 3;
-                    });
-                    addVehicleOptions.Add(4, () =>
+                        addVehicleMessages.Add(2, "Bil");
+                    }
+
+
+                    if (placesLeft >= 2)
                     {
-                        GetInputForVehicleOfType(typeof(Boat));
-                        return 4;
-                    });
-                    addVehicleMessages.Add(3, "Lägg till buss");
-                    addVehicleMessages.Add(4, "Lägg till båt");
-                }
+                        addVehicleMessages.Add(3, "Buss");
+                        addVehicleMessages.Add(4, "Båt");
+                    }
 
-                if (placesLeft >= 3)
-                {
-                    addVehicleOptions.Add(5, () =>
+                    if (placesLeft >= 3)
                     {
-                        GetInputForVehicleOfType(typeof(Airplane));
-                        return 5;
-                    });
-                    addVehicleMessages.Add(5, "Lägg till flygplan");
-                }
-            }
-
-            if ((GarageType) == typeof(Motorcycle))
-            {
-                addVehicleOptions.Add(1, () => {
-                GetInputForVehicleOfType(GarageType);
-                    return 1;
-                });
-                addVehicleMessages.Add(1, "Lägg till motorcykel");
-            }
-
-            if (GarageType == typeof(Car))
-            {
-                addVehicleOptions.Add(1, () =>
-                {
-                    GetInputForVehicleOfType(GarageType);
-                    return 2;
-                });
-                addVehicleMessages.Add(1, "Lägg till bil");
-            }
-
-            if (GarageType == typeof(Bus))
-            {
-                addVehicleOptions.Add(1, () => {
-                GetInputForVehicleOfType(GarageType);
-                    return 3;
-                });
-                addVehicleMessages.Add(1, "Lägg till Buss");
-            }
-
-            if (GarageType == typeof(Boat))
-            {
-                addVehicleOptions.Add(1, () => {
-                GetInputForVehicleOfType(GarageType);
-                    return 4;
-                });
-                addVehicleMessages.Add(1, "Lägg till båt");
-            }
-
-            if (GarageType == typeof(Airplane))
-            {
-                addVehicleOptions.Add(1, () => {
-                GetInputForVehicleOfType(GarageType);
-                    return 5;
-                });
-                addVehicleMessages.Add(1, "Lägg till bil");
+                        addVehicleMessages.Add(5, "Flygplan");
+                    }
+                    break;
+                
             }
 
             return addVehicleMessages;

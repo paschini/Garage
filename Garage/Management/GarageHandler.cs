@@ -23,7 +23,7 @@ namespace Garage.Management
 
         public Type GarageType => Garage?.VehicleType ?? typeof(object);
 
-        public string GarageName { get; private set; } = string.Empty;
+        public string GarageName => Garage?.Name ?? string.Empty;
 
         public bool GarageInitialised => Garage is not null;
 

@@ -13,8 +13,8 @@ namespace GarageSystem
             var host = Host.CreateDefaultBuilder(args)
                 .ConfigureServices(services =>
                 {   
-                    // services.AddSingleton<IConfiguration>(config);
-                    services.AddSingleton<Manager>(); 
+                    services.AddSingleton<Manager>();
+                    services.AddSingleton<ConfigRepository>();
                     services.AddSingleton<IUI, ConsoleUI>();
                     services.AddSingleton<IHandler, GarageHandler>();
                     services.AddSingleton<IGarageFactory, GarageFactory>();

@@ -1,7 +1,7 @@
-﻿using Garage.Domain;
-using Garage.UILayer;
+﻿using Microsoft.Extensions.Configuration;
 using GarageSystem;
-using System.Diagnostics.Metrics;
+using Garage.Domain;
+using Garage.UILayer;
 
 namespace Garage.Management
 {
@@ -13,7 +13,7 @@ namespace Garage.Management
         private string? _GarageTitle { get; set; } = null;
         private string? _GarageType { get; set; } = null;
         private int? _GarageCapacity = null;
-        private Config? _Config { get; set; } = null;
+        private IConfiguration _Config => ReadConfigFile();
 
         private List<IHandler> _HandlerList { get; set; } = [];
         private IVehicleFactory _VehicleFactory = new VehicleFactory();
@@ -62,7 +62,7 @@ namespace Garage.Management
         {
             float placesLeft = _Handler?.GetGaragePlacesLeft() ?? 0;
             _UI.ShowMessage($"\n{_GarageTitle} kan ta {_GarageType} ({_Handler?.GarageType})");
-            _UI.ShowMessage($"{_GarageTitle} har {ToFraction(placesLeft)} platser kvar.\n");
+            _UI.ShowMessage($"{_GarageTitle} har {ToMixedFraction(placesLeft)} platser kvar.\n");
 
             CheckGarageInitialised();
 
@@ -76,23 +76,31 @@ namespace Garage.Management
 
             vehicleMessages = _UI.CreateAddVehicleMenuOptions(_GarageTitle ?? "", placesLeft, _Handler?.GarageType ?? typeof(Vehicle));
             int chosen = _UI.ShowSubMenu(_GarageTitle ?? "", "Skappa fordon: \n", vehicleMessages);
-            Type vehicleChoiceType = chosen switch
+            if (chosen == 0) return;
+
+            try {
+                Type vehicleChoiceType = chosen switch
+                {
+                    1 => typeof(Motorcycle),
+                    2 => typeof(Car),
+                    3 => typeof(Bus),
+                    4 => typeof(Boat),
+                    5 => typeof(Airplane),
+                    _ => typeof(Vehicle) // ska kasta argument exception
+                };
+
+                IVehicleInput? vehicleToCreate = _UI.GetInputForVehicleOfType(vehicleChoiceType);
+                IVehicle? vehicleToAdd = _VehicleFactory?.Create(vehicleToCreate);
+
+                if (vehicleToAdd != null) _Handler?.AddVehicle(vehicleToAdd);
+
+                _UI.ShowMessage($"\nKapacitet nu: {_Handler?.GetGarageCapacity()}");
+                _UI.ShowMessage($"Platser kvar nu: {ToMixedFraction(_Handler?.GetGaragePlacesLeft() ?? 0)}\n\n");
+            }
+            catch(Exception ex) 
             {
-                1 => typeof(Motorcycle),
-                2 => typeof(Car),
-                3 => typeof(Bus),
-                4 => typeof(Boat),
-                5 => typeof(Airplane),
-                _ => typeof(Car)
-            };
-
-            IVehicleInput? vehicleToCreate = _UI.GetInputForVehicleOfType(vehicleChoiceType);
-            IVehicle? vehicleToAdd = _VehicleFactory?.Create(vehicleToCreate);
-
-            if (vehicleToAdd != null) _Handler?.AddVehicle(vehicleToAdd);
-
-            _UI.ShowMessage($"\nKapacitet nu: {_Handler?.GetGarageCapacity()}");
-            _UI.ShowMessage($"Platser kvar nu: {ToFraction(_Handler?.GetGaragePlacesLeft() ?? 0)}\n\n");
+                _UI.ShowError(ex);
+            }
         }
 
 
@@ -226,7 +234,7 @@ namespace Garage.Management
             }
         }
 
-        public string ToFraction(float value, int maxDenominator = 10)
+        public string ToMixedFraction(float value, int maxDenominator = 3)
         {
             int numerator = (int)Math.Round(value * maxDenominator);
             int denominator = maxDenominator;
@@ -235,7 +243,16 @@ namespace Garage.Management
             numerator /= gcd;
             denominator /= gcd;
 
-            return $"{numerator}/{denominator}";
+            // whole number part
+            int whole = numerator / denominator;
+            int remainder = numerator % denominator;
+
+            if (whole > 0 && remainder > 0)
+                return $"{whole} and {remainder}/{denominator}";
+            if (whole > 0 && remainder == 0)
+                return whole.ToString();
+            // whole == 0
+            return $"{remainder}/{denominator}";
         }
 
         private int GCD(int a, int b)
@@ -296,20 +313,19 @@ namespace Garage.Management
 
             for (int i = 0; i < _HandlerList.Count; i++)
             {
-                switchGarageMenuOptions.Add(i, _HandlerList[i].GarageName);
+                switchGarageMenuOptions.Add(i + 1, _HandlerList[i].GarageName);
             }
 
             int choice = _UI.ShowSubMenu("Välja andra garage...", "Vilken garage vill du arbeta med ?\n", switchGarageMenuOptions);
+            if (choice == 0) return;
 
-            _GarageTitle = _HandlerList[choice].GarageName;
-            _GarageType = _HandlerList[choice].GarageType.Name;
-            _Handler = _HandlerList[choice];
+            _GarageTitle = _HandlerList[choice - 1].GarageName;
+            _GarageType = _HandlerList[choice - 1].GarageType.Name;
+            _Handler = _HandlerList[choice - 1];
         }
 
         private void Init()
         {
-            _Config = ReadConfigFile();
-
             var mainMenuOptions = new Dictionary<int, Action>
             {
                 { 1, CreateGarage },
@@ -326,9 +342,9 @@ namespace Garage.Management
 
             var mainMenuMessages = new Dictionary<int, string>
             {
-                { 1, "Create Garage: man kan skappa mer en en Garage.\n Nytt tillägade garaage blir  'activa' omedelbart." },
+                { 1, "Skapa Garage: man kan skappa mer en en Garage.\n Nytt tillägade garage blir  'activa' omedelbart.\n" },
                 { 2, "Tilläg fordon" },
-                { 3, "Lista alla fordon" },
+                { 3, "Lista alla fordon i detta garagret" },
                 { 4, "Sök fordon via registreringsnummer" },
                 { 5, "Sök fordon via egenskaper" },
                 { 6, "Populära garaget med en antal fordon" },
@@ -342,13 +358,12 @@ namespace Garage.Management
 
             if (_Config != null)
             {
-                _GarageTitle = _Config.GarageTitle!;
-                _GarageType = _Config.GarageType!;
-                _GarageCapacity = _Config.GarageCapacity!;
+                _GarageTitle = _Config.GetValue<string>("GarageTitle");
+                _GarageType = _Config.GetValue<string>("GarageType");
+                _GarageCapacity = _Config.GetValue<int>("GarageCapacity");
 
                 _Handler = _factory.Create(_GarageType ?? "", _GarageCapacity ?? 0, _GarageTitle ?? "IngetNamn");
                 _HandlerList.Add(_Handler);
-                _Config = null; // använd config bara på Init   
             }
             else
             {
@@ -364,10 +379,9 @@ namespace Garage.Management
             _UI.ShowMainMenu(_GarageTitle ?? string.Empty);
         }
 
-        private Config? ReadConfigFile()
+        private IConfiguration ReadConfigFile()
         {
-            ConfigRepository repo = new("config.json");
-            return repo.LoadConfig();
+            return ConfigRepository.Config();
         }
     }
 }

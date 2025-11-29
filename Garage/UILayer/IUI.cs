@@ -25,6 +25,14 @@ namespace Garage.UILayer
 
         Dictionary<int, string>  CreateAddVehicleMenuOptions(string GarageTitle, float placesLeft, Type GarageType);
 
+        /// <summary>
+        /// Asks the user for all parameters necessary to create a vehicle of IVehicle vehicleType.
+        /// </summary>
+        /// <param name="vehicleType">Must be a type that implements IVehicle</param>
+        /// <returns>
+        /// Returns the IVehicleInput DTO maching IVehicle vehicleType generatred from user input.
+        /// Ex. 'CarInputDTO carDTO = GetInputForVehicleOfType(typeof(Car));'
+        /// </returns>
         IVehicleInput? GetInputForVehicleOfType(Type vehicleType);
     }
 }
