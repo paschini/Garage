@@ -55,12 +55,12 @@ TEx: query `type=car` returneraas alla fordon som är `Car` i garaget.
 Detta query fungerar på alla garage typer också, men själv är inte menningsfulla och kommer returnera alla fordon, utan tillvidare filtrering.
 
 **Fältar att använda i query**
-Alla fordon typer: `type`, `make`, `model`, `color`
-Motorcykel: `isutility` - `true or false`
-Bil: `truckcontent`
-Bus: `linjeID` - `433, 284B, etc`
-Flyggplan: `wingspan`, `numberofengines`
-Båt: `boatType` - `segelbåt, katamaran, etc`
+Alla fordon typer: `type`, `make`, `model`, `color`  
+Motorcykel: `isutility` - `true or false`   
+Bil: `truckcontent`   
+Bus: `linjeID` - `433, 284B, etc`   
+Flyggplan: `wingspan`, `numberofengines`   
+Båt: `boatType` - `segelbåt, katamaran, etc`   
 
 ## Populate
 Man kan försöka att filla på garaget med slumpmässig fordoner.
