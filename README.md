@@ -2,6 +2,16 @@
 
 En program som hanterar en fysisk garageplats för fordon. Programmet låter användaren lägga till, ta bort och visa fordon i garaget samt söka efter specifika fordon baserat på olika kriterier.
 
+## Typ av Garage
+Garage kan vara av typ `Vehicle`, `Car`, `Motorcycle`, `Airplane`, `Boat`, eller `Bus`.
+Garaget av `Vehicle` typ kan innehålla alla typ av fordon.
+Garaget av annan typer kan bara innehålla egen typ av fordon.
+
+## Typ av fordon
+Fordoner typ som kan användas är beroende på vilken typ av Garage är activa.
+Det går inte att skapa fordon av typ `Vehicle`.
+Fordoner kan vara ab typ: `Car`, `Motorcycle`, `Airplane`, `Boat`, eller `Bus`.
+
 ## Kapacitet
 Garagets kapacitetsvärde `(Capacity)` representerar hur många fysiska platser det innehåller. Olika fordon kan ta upp olika mycket plats.
 
@@ -17,6 +27,8 @@ Vi gör så för att vi vill beräkna platser korret när det finns motorcyclar i gar
 
 Om det finns en `config.json` fil i `Garage\Garage`, filen kommer kopieras till `Garage\Garage\bin\Debug\net9.0\` om det byggs.  
 Garaget från fill blir default Garage.
+
+En default config.json fil inkluderas med en `Vehicle` garage, som heter `Parkerings Garage`, `10` platser kapacitet.
 
 config.json
 ````json
@@ -50,7 +62,7 @@ Båt: `boatType` - `segelbåt, katamaran, etc`
 
 
 ## Spara Garaget
-Om man väljer `Spara G<raget>` i meny, en `JSON` fil med samma namn som Garaget kommer sparas med alla fordon som finns i garaget.   
+Om man väljer `Spara Garaget` i meny, en `JSON` fil med samma namn som Garaget kommer sparas med alla fordon som finns i garaget.   
 Filen sparas i  `Garage\Garage\bin\Debug\net9.0\`.
 
 ## Ladda Garaget
