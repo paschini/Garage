@@ -48,6 +48,7 @@ namespace Garage.Domain
                     return 3; // 1
             }
         }
+        
 
         public void AddVehicle(T vehicle)
         {
@@ -138,18 +139,20 @@ namespace Garage.Domain
 
             Capacity = list.Count + 3;
             _vehicles = new T[Capacity];
+            AvailablePlaces = Capacity * 3;
 
             for (int i = 0; i < list.Count; i++)
             {
                 _vehicles[i] = list[i];
+                _availablePlaces -= CountPlaces(list[i]);
             }
 
             Count = list.Count;
         }
 
-        public void LoadVehicles(IEnumerable<IVehicle> vehicle)
+        public void LoadVehicles(IEnumerable<IVehicle> vehicles)
         {
-
+            LoadVehicles(vehicles);
         }
 
         public IEnumerator<T> GetEnumerator()
@@ -160,6 +163,11 @@ namespace Garage.Domain
         IEnumerator IEnumerable.GetEnumerator()
         {
             return GetEnumerator();
+        }
+
+        public int CountPlaces(IVehicle vehicle)
+        {
+            return CountPlaces((T) vehicle);
         }
 
         public void AddVehicle(IVehicle vehicle)

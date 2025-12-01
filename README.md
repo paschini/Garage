@@ -1,10 +1,22 @@
 # Garage
 
-En program som hanterar en fysisk garageplats för fordon. Programmet låter användaren lägga till, ta bort och visa bilar i garaget samt söka efter specifika bilar baserat på olika kriterier.
+En program som hanterar en fysisk garageplats för fordon. Programmet låter användaren lägga till, ta bort och visa fordon i garaget samt söka efter specifika fordon baserat på olika kriterier.
+
+## Kapacitet
+Garagets kapacitetsvärde `(Capacity)` representerar hur många fysiska platser det innehåller. Olika fordon kan ta upp olika mycket plats.
+
+## AvailablePlaces
+Garagets `AvailablePlaces` representerar hur många fysiska platser nuvarande finns kvar i garaget. Platser kvar beräknas vid hur mycket platser ta varje fordon som redan finns i garaaget.   
+
+Internalt i garaaget, beräknas `_availablePlaces` på början som `Capacity * 3`. När man läser värde, får man `AvailablePLaces = _availablePlaces / 3_`.
+`AvailaPlaces` rå värde är inte helt meningsfulla och jag rekommenderar att man alltid formaterar den men `ToMixedFraction`.   
+
+Vi gör så för att vi vill beräkna platser korret när det finns motorcyclar i garaget. Motorcyclar tar bara 1/3 fysisk plats.
 
 ## Config
 
-En config.json fil behövs i `Garage\Garage\bin\Debug\net9.0\` för att starta applicationen.
+Om det finns en `config.json` fil i `Garage\Garage`, filen kommer kopieras till `Garage\Garage\bin\Debug\net9.0\` om det byggs.  
+Garaget från fill blir default Garage.
 
 config.json
 ````json
@@ -15,3 +27,31 @@ config.json
 }
 
 ````
+
+## Söka i Garaget
+Sökning är inte `case sensitive`.
+
+Man kan söka ett fordon vid att matta in en registrering nummer, eller att skappa en `query` som innehåller fordons egenskapper.
+Det är möjligt att söka fordon vid alla fäsltarr som finns, även egen fältar.
+
+TEx: query `make=tesla;color=röd;trunkcontent=hund` returneraas alla `Tesla` fordon som är `röd` och innehåller `hund`
+
+Om Garaget är av typ `Vehicle`, det går även att söka på en fordon typ:
+TEx: query `type=car` returneraas alla fordon som är `Car` i garaget.
+Detta query fungerar på alla garage typer också, men själv är inte menningsfulla och kommer returnera alla fordon, utan tillvidare filtrering.
+
+**Fältar att använda i query**
+Alla fordon typer: `type`, `make`, `model`, `color`
+Motorcykel: `isutility` - `true or false`
+Bil: `truckcontent`
+Bus: `linjeID` - `433, 284B, etc`
+Flyggplan: `wingspan`, `numberofengines`
+Båt: `boatType` - `segelbåt, katamaran, etc`
+
+
+## Spara Garaget
+Om man väljer `Spara G<raget>` i meny, en `JSON` fil med samma namn som Garaget kommer sparas med alla fordon som finns i garaget.   
+Filen sparas i  `Garage\Garage\bin\Debug\net9.0\`.
+
+## Ladda Garaget
+Om de finns en fil med samma namn som nuvarande activa garage och filen innehåller minst 1 fordon, alla fordon i garaget kommer laddas.  

@@ -106,11 +106,12 @@ namespace Garage.Management
 
             string[] TrunkContents = { "hund", "katt", "hunder", "katter", "Påsar", "Grejer", "" };
 
+            string[] lineID = ["433", "434"];
+
             Random rand = new();
 
             if (GarageType == typeof(Vehicle))
             {
-                // Safe cast to T after creating Car
                 IVehicle car = new Car(
                     registration: GeneratePlate(),
                     make: CarBrands[rand.Next(CarBrands.Length)],
@@ -148,14 +149,14 @@ namespace Garage.Management
 
             if (GarageType == typeof(Bus) || GarageType.IsSubclassOf(typeof(Bus)))
             {
-                IVehicle moto = new Motorcycle(
+                IVehicle bus = new Bus(
                     registration: GeneratePlate(),
                     make: BusBrands[rand.Next(CarBrands.Length)],
                     model: BusModels[rand.Next(MotoModels.Length)],
                     color: Colors[rand.Next(Colors.Length)],
-                    isUtility: rand.Next(2) == 0
+                    linjeID: lineID[rand.Next(lineID.Length)]
                 );
-                return moto;
+                return bus;
             }
 
             throw new NotSupportedException($"Random generation for type {typeof(IVehicle).Name} is not supported.");

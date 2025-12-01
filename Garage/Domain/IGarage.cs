@@ -31,6 +31,8 @@
 
     public interface IGarage<T> where T : IVehicle
     {
+        int CountPlaces(T vehicle);
+
         void AddVehicle(T vehicle);
 
         T RemoveVehicle(int index);

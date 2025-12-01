@@ -172,7 +172,7 @@ namespace Garage.Management
             _UI.ShowMessage("Hittar fordon via registreringsnummer: ");
             string registrationNumber = _UI.GetStringInput("Ange registreringsnummer att söka efter: ", "Registreringsnummer kan inte vara tomt!");
             IVehicle? found = _Handler?.FindByRegistraation(registrationNumber);
-            // TODO: behövs inte egen funktion i Handler, jag kan hitta med Search("registration=XYZ") ta bort?
+            // jag håller egen metod. I en DB det är möjligt att vi har en egen db query här, optimerade vid primary key
             if (found is not null)
             {
                 _UI.ShowMessage("-----------------------------------------------------------------");
@@ -249,7 +249,7 @@ namespace Garage.Management
             int remainder = numerator % denominator;
 
             if (whole > 0 && remainder > 0)
-                return $"{whole} and {remainder}/{denominator}";
+                return $"{whole} och {remainder}/{denominator}";
             if (whole > 0 && remainder == 0)
                 return whole.ToString();
             // whole == 0

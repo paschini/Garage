@@ -12,9 +12,9 @@ namespace GarageSystem
     {
         private readonly string _filePath;
 
-        public GarageRepository(string filePath)
+        public GarageRepository(string fileName)
         {
-            _filePath = filePath;
+            _filePath = fileName;
         }
 
         public void Save(IEnumerable<IVehicle> vehicles)
@@ -30,7 +30,7 @@ namespace GarageSystem
 
         public IEnumerable<IVehicle> Load(string fileName)
         {
-            if (!File.Exists(_filePath ?? fileName)) return new List<IVehicle>();
+            if (!File.Exists(_filePath)) return new List<IVehicle>();
 
             var json = File.ReadAllText(_filePath ?? fileName);
             return JsonSerializer.Deserialize<List<IVehicle>>(json) ?? new List<IVehicle>();

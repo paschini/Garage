@@ -12,7 +12,7 @@ namespace GarageSystem
             string currentDir = Directory.GetCurrentDirectory();
             return new ConfigurationBuilder()
                 .SetBasePath(currentDir)
-                .AddJsonFile("config.json")
+                .AddJsonFile("config.json", optional: true, reloadOnChange: false)
                 .Build();
         }
     }
