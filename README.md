@@ -1,6 +1,6 @@
 # Garage
 
-En program som hanterar en fysisk garageplats för fordon. Programmet låter användaren lägga till, ta bort och visa fordon i garaget samt söka efter specifika fordon baserat på olika kriterier.
+En program som hanterar en fysisk garageplats till fordon. Programmet låter användaren lägga till, ta bort och visa fordon i garaget samt söka efter specifika fordon baserat på olika kriterier.
 
 ## Typ av Garage
 Garage kan vara av typ `Vehicle`, `Car`, `Motorcycle`, `Airplane`, `Boat`, eller `Bus`.
@@ -16,12 +16,14 @@ Fordoner kan vara ab typ: `Car`, `Motorcycle`, `Airplane`, `Boat`, eller `Bus`.
 Garagets kapacitetsvärde `(Capacity)` representerar hur många fysiska platser det innehåller. Olika fordon kan ta upp olika mycket plats.
 
 ## AvailablePlaces
-Garagets `AvailablePlaces` representerar hur många fysiska platser nuvarande finns kvar i garaget. Platser kvar beräknas vid hur mycket platser ta varje fordon som redan finns i garaaget.   
+Garagets `AvailablePlaces` representerar hur många fysiska platser nuvarande finns kvar i garaget. Platser kvar beräknas vid hur mycket platser tar varje fordon som redan finns i garaget.   
 
-Internalt i garaaget, beräknas `_availablePlaces` på början som `Capacity * 3`. När man läser värde, får man `AvailablePLaces = _availablePlaces / 3_`.
-`AvailaPlaces` rå värde är inte helt meningsfulla och jag rekommenderar att man alltid formaterar den men `ToMixedFraction`.   
+Internalt i garaget, beräknas `_availablePlaces` på början som `Capacity * 3`. När man läser värde, får man `AvailablePLaces = _availablePlaces / 3`.
+`AvailablePlaces` rå värde är inte helt meningsfulla och jag rekommenderar att man alltid formaterar den men `ToMixedFraction`.   
 
 Vi gör så för att vi vill beräkna platser korret när det finns motorcyclar i garaget. Motorcyclar tar bara 1/3 fysisk plats.
+
+`"Platser kvar nu: 3 2/3"` menar att det finns 3 hel fysisk platser kvar + ett plats där redan finns 1 motorcykel. Detta plats kan bara ta andra motorcykel.
 
 ## Config
 
@@ -60,6 +62,11 @@ Bus: `linjeID` - `433, 284B, etc`
 Flyggplan: `wingspan`, `numberofengines`
 Båt: `boatType` - `segelbåt, katamaran, etc`
 
+## Populate
+Man kan försöka att filla på garaget med slumpmässig fordoner.
+
+Poplulate funktion tar en användare valde totalt nummer att fordon att skappas och försätta populära garaget till alla totalt fordon finns i garaget, eller till garaaget har inget plats kvar.
+Om garaget populärar med minst 1 fordon, resultat blir `success`. Annars, får man en `error`.
 
 ## Spara Garaget
 Om man väljer `Spara Garaget` i meny, en `JSON` fil med samma namn som Garaget kommer sparas med alla fordon som finns i garaget.   
