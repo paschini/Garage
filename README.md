@@ -28,7 +28,7 @@ Vi gör så för att vi vill beräkna platser korret när det finns motorcyclar i gar
 ## Config
 
 Om det finns en `config.json` fil i `Garage\Garage`, filen kommer kopieras till `Garage\Garage\bin\Debug\net9.0\` om det byggs.  
-Garaget från fill blir default Garage.
+Garaget från fil blir activa Garage.
 
 En default config.json fil inkluderas med en `Vehicle` garage, som heter `Parkerings Garage`, `10` platser kapacitet.
 
